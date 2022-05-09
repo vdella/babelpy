@@ -1,4 +1,4 @@
-from src.main.structures.state import initial_state, State
+from src.structures.state import initial_state, State
 
 
 class FiniteAutomata:
@@ -10,6 +10,9 @@ class FiniteAutomata:
         self.final_states = set()
 
     def read(self, sentence: str) -> bool:
+        """Iteratively loops over a transition table and
+        checks if a final state can be reached from the given input."""
+
         cached_state = self.initial_state
 
         for symbol in sentence:
@@ -19,9 +22,9 @@ class FiniteAutomata:
         return cached_state in self.final_states
 
     def __or__(self, other):
-        if isinstance(other, FiniteAutomata):
-            # TODO add decorator.
-            raise TypeError('Comparison between {} and {}'.format(type(FiniteAutomata), type(other)))
+        # if isinstance(other, FiniteAutomata):
+        #     # TODO add decorator.
+        #     raise TypeError('Comparison between {} and {}'.format(type(FiniteAutomata), type(other)))
 
         new_fa = FiniteAutomata()
 
