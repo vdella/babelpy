@@ -1,6 +1,6 @@
 from src.main.structures.automata.fa import FiniteAutomata
 from src.main.exceptions.MalformedFileError import MalformedFileError
-from src.main.structures.State import State
+from src.main.structures.state import State
 from src.main import resource_dir
 
 
