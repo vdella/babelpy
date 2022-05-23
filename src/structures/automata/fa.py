@@ -1,12 +1,14 @@
-from src.structures.state import initial_state, State
+from src.structures.automata.state import State
 
 
 class FiniteAutomata:
 
     def __init__(self):
-        self.states = set()
+        start = State(0)
+
+        self.initial_state = start
+        self.states = {self.initial_state}
         self.transitions = dict()
-        self.initial_state = initial_state()
         self.final_states = set()
 
     def read(self, sentence: str) -> bool:
@@ -16,16 +18,12 @@ class FiniteAutomata:
         cached_state = self.initial_state
 
         for symbol in sentence:
-            for state in self.transitions[(cached_state, symbol)]:
-                cached_state = state
+            for s in self.transitions[(cached_state, symbol)]:
+                cached_state = s
 
         return cached_state in self.final_states
 
     def __or__(self, other):
-        # if isinstance(other, FiniteAutomata):
-        #     # TODO add decorator.
-        #     raise TypeError('Comparison between {} and {}'.format(type(FiniteAutomata), type(other)))
-
         new_fa = FiniteAutomata()
 
         new_fa.initial_state = State(0)
@@ -40,5 +38,12 @@ class FiniteAutomata:
         return new_fa
 
     def __update_ids_from(self, seed: int):
-        for state in self.states:
-            state.identifier += seed
+        for s in self.states:
+            s.id += seed
+
+
+if __name__ == '__main__':
+    fa = FiniteAutomata()
+
+    for state in fa.states:
+        print(state)
