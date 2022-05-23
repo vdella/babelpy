@@ -6,9 +6,12 @@ class State:
     def __str__(self):
         return 'q{}'.format(self.id)
 
+    def __hash__(self):
+        return hash(self.id)
 
-def initial_state():
-    return State(0)
+    def __eq__(self, other):
+        if isinstance(other, State):
+            return self.id == other.id
 
 
 if __name__ == '__main__':
