@@ -1,4 +1,5 @@
 from src.structures.automata.state import State
+from prettytable import PrettyTable
 
 
 class FiniteAutomata:
@@ -38,12 +39,23 @@ class FiniteAutomata:
         return new_fa
 
     def __update_ids_from(self, seed: int):
+        # TODO replace by summing both automata.state length.
         for s in self.states:
+            # print(s.id)
             s.id += seed
+            print(s.id)
+
+    def __str__(self):
+        table = PrettyTable()
+        table.field_names = ['Transition', 'Arrival']
+
+        for key, value in self.transitions.items():
+            table.add_row([key, value])
+        return str(table)
 
 
 if __name__ == '__main__':
     fa = FiniteAutomata()
 
-    for state in fa.states:
-        print(state)
+    print(fa)
+
