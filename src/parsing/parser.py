@@ -12,20 +12,20 @@ def parse_fa_from(filepath: str) -> FiniteAutomata:
 
     finite_automata = FiniteAutomata()  # To be completed.
 
-    str_states = cleaned[1:cleaned.index('*transitions')]
+    str_states = cleaned[1: cleaned.index('*transitions')]
 
     i = 0
     for s in str_states:
         if s.__contains__('->'):  # Adds initial state...
-            finite_automata.initial_state = State(i, s)
+            finite_automata.initial_state = State(i)
             finite_automata.states |= {finite_automata.initial_state}
 
         elif s.__contains__('*'):  # ... And final states.
-            finite_automata.final_states |= {State(i, s)}
+            finite_automata.final_states |= {State(i)}
             finite_automata.states |= finite_automata.final_states
 
         else:  # Add rest of states that are not initial nor final.
-            finite_automata.states |= {State(i, s)}
+            finite_automata.states |= {State(i)}
         i += 1
 
     str_transitions = cleaned[cleaned.index('*transitions') + 1:]
@@ -73,5 +73,9 @@ def __verify(file_lines: list):
 
 if __name__ == '__main__':
     fa1 = parse_fa_from(resource_dir / 'simple_five_states.txt')
+    print(fa1)
+
     fa2 = parse_fa_from(resource_dir / 'ab_with_last_equals_first.txt')
+    print(fa2)
+
     print(fa1 | fa2)

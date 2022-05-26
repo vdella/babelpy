@@ -41,9 +41,7 @@ class FiniteAutomata:
     def __update_ids_from(self, seed: int):
         # TODO replace by summing both automata.state length.
         for s in self.states:
-            # print(s.id)
             s.id += seed
-            print(s.id)
 
     def __str__(self):
         table = PrettyTable()
