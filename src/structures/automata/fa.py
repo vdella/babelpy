@@ -1,5 +1,6 @@
 from src.structures.automata.state import State
 from prettytable import PrettyTable
+from time import process_time_ns as curr_time
 
 
 class FiniteAutomata:
@@ -24,36 +25,44 @@ class FiniteAutomata:
 
         return cached_state in self.final_states
 
+    def is_nfa(self):
+        """Checks for non-determinism in an automata. It's non-deterministic
+        if it has an '&' as an input in a transition or if one of its transitions has more
+        than one, or none, destiny states."""
+        for transition in self.transitions:
+            symbol = transition[1]
+            if symbol == '&' or len(self.transitions[transition]) != 1:
+                return True
+        return False
+
     def __or__(self, other):
         new_fa = FiniteAutomata()
 
-        new_fa.initial_state = State(0)
-        self.__update_ids_from(1)
-        other.__update_ids_from(len(self.states) + 1)
+        # As the previous start states have arrows, we have to take them out
+        # before showing the results to the user.
+        self.initial_state.label = self.initial_state.label[2:]
+        other.initial_state.label = other.initial_state.label[2:]
 
-        new_fa.states = self.states | other.states
-
+        new_fa.initial_state = State(curr_time())
+        new_fa.states = self.states | other.states | {new_fa.initial_state}
         new_fa.transitions = self.transitions | other.transitions
         new_fa.transitions[(new_fa.initial_state, '&')] = {self.initial_state, other.initial_state}
 
         return new_fa
 
-    def __update_ids_from(self, seed: int):
-        # TODO replace by summing both automata.state length.
-        for s in self.states:
-            s.id += seed
-
     def __str__(self):
+        """Shows a Finite Automata as its transition table."""
         table = PrettyTable()
         table.field_names = ['Transition', 'Arrival']
 
         for key, value in self.transitions.items():
-            table.add_row([key, value])
+
+            state = str(key[0])
+            symbol = key[1]
+            transition = (state, symbol)
+
+            # Gathers all possible destiny state labels, as we can have more than one.
+            arrival = {str(s) for s in value}
+
+            table.add_row([transition, arrival])
         return str(table)
-
-
-if __name__ == '__main__':
-    fa = FiniteAutomata()
-
-    print(fa)
-
