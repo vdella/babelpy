@@ -2,7 +2,7 @@ from src.structures.automata.fa import FiniteAutomata
 from src import resource_dir
 
 
-def save(fa: FiniteAutomata, filename='generated.txt'):
+def save(fa: FiniteAutomata, filename='generated_fa.txt'):
     with open(resource_dir / filename, 'w') as f:
         f.write('*states\n')
 
