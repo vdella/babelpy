@@ -107,5 +107,4 @@ if __name__ == '__main__':
 
     # print(fa1 | fa2)
     save(fa1 | fa2)
-
     print(parse_fa_from(resource_dir / 'generated.txt'))
