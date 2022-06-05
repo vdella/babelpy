@@ -8,7 +8,7 @@ def eat(regex) -> list and set:
     with its terminal symbols."""
     digest = __trim_blank_spaces(regex) + '#'
     digest = __add_missing_concatenations(digest)
-    return list(digest), __terminals_from(digest) | {'&'}
+    return list(digest), __terminals_from(digest)
 
 
 def __add_missing_concatenations(regex):
