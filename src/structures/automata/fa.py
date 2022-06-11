@@ -9,6 +9,7 @@ class FiniteAutomata:
         self.states = {self.initial_state}
         self.transitions = dict()
         self.final_states = set()
+        self.symbol_table = []
 
     def read(self, sentence: str) -> bool:
         """Iteratively loops over a transition table and
@@ -21,6 +22,12 @@ class FiniteAutomata:
                 cached_state = s
 
         return cached_state in self.final_states
+
+    def gen_st(self, identifier: str) -> int:
+
+        if not (identifier in self.symbol_table):
+            self.symbol_table.append(identifier)
+        return self.symbol_table.index(identifier)
 
     def is_nfa(self):
         """Checks for non-determinism in an automata. It's non-deterministic
