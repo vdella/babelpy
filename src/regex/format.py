@@ -6,7 +6,10 @@ non_terminals = operators | parenthesis
 def eat(regex) -> list and set:
     """Eats a non formatted regex and returns its list digested form
     with its terminal symbols."""
-    digest = __trim_blank_spaces(regex) + '#'
+    if regex[-1] == '#':
+        digest = __trim_blank_spaces(regex)
+    else:
+        digest = __trim_blank_spaces(regex) + '#'
     digest = __add_missing_concatenations(digest)
     return list(digest), __terminals_from(digest)
 

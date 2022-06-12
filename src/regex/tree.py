@@ -2,9 +2,38 @@ from src.regex.format import eat
 
 
 class SyntaxTree:
+
     def __init__(self, regex):
         digest, self.terminals = eat(regex)
-        self.root = _tree_from(digest)
+        self.root: Node = _tree_from(digest)
+        _attach_serial_to(self)
+
+
+def _attach_serial_to(tree: SyntaxTree):
+
+    serial = 1
+
+    def seek_from(node):
+
+        nonlocal serial
+
+        left, right = node.left, node.right
+
+        if left:
+            if left.regex_symbol not in tree.terminals:
+                seek_from(left)
+            else:
+                left.serial_number = serial
+                serial += 1
+
+        if right:
+            if right.regex_symbol not in tree.terminals:
+                seek_from(right)
+            else:
+                right.serial_number = serial
+                serial += 1
+
+    seek_from(tree.root)
 
 
 def _tree_from(regex):
@@ -48,7 +77,8 @@ def _tree_from(regex):
 class Node:
 
     def __init__(self, symbol: str, left=None, right=None):
-        self.symbol = symbol
+        self.regex_symbol = symbol
+        self.serial_number = 0
 
         self.left: Node = left
         self.right: Node = right
@@ -56,42 +86,46 @@ class Node:
         self.follow_pos = set()
 
     def __str__(self):
-        return self.symbol
+        return self.regex_symbol
 
     def nullable(self) -> bool:
-        if self.symbol == '&' or self.symbol == '*':
+        if self.regex_symbol == '&' or self.regex_symbol == '*':
             return True
-        elif self.symbol == ".":
+        elif self.regex_symbol == ".":
             return self.left.nullable() and self.right.nullable()
-        elif self.symbol == "|":
+        elif self.regex_symbol == "|":
             return self.left.nullable() or self.right.nullable()
         return False
 
     def first_pos(self) -> set:
-        match self.symbol:
+        match self.regex_symbol:
             case '&':
                 return set()
             case '*':
                 return self.left.first_pos()
             case '.':
-                return self.left.first_pos() | self.right.first_pos() \
-                    if self.left.nullable() else self.left.first_pos()
+                if self.left.nullable():
+                    return self.left.first_pos() | self.right.first_pos()
+                else:
+                    return self.left.first_pos()
             case '|':
                 return self.left.first_pos() | self.right.first_pos()
             case _:
                 return {self}
 
     def last_pos(self) -> set:
-        match self.symbol:
+        match self.regex_symbol:
             case '&':
                 return set()
             case '*':
                 return self.left.last_pos()
             case '.':
-                return self.left.last_pos() | self.right.last_pos() \
-                    if self.right.nullable() else self.right.last_pos()
+                if self.right.nullable():
+                    return self.left.last_pos() | self.right.last_pos()
+                else:
+                    return self.right.last_pos()
             case '|':
-                return self.right.last_pos()
+                return self.left.last_pos() | self.right.last_pos()
             case _:
                 return {self}
 
@@ -101,25 +135,36 @@ class Node:
             if children:
                 children.gen_follow_pos()
 
-        if self.symbol == '.':
+        if self.regex_symbol == '.':
             for children in self.left.last_pos():
                 children.follow_pos |= self.right.first_pos()
 
-        elif self.symbol == '*':
+        elif self.regex_symbol == '*':
             for children in self.last_pos():
                 children.follow_pos |= self.first_pos()
 
 
+def stringfy(node):
+    first_pos = [n.serial_number for n in node.first_pos()]
+    first_pos.sort()
+
+    last_pos = [n.serial_number for n in node.last_pos()]
+    last_pos.sort()
+
+    return str(first_pos), str(last_pos)
+
+
 def show_tree_from(root, level=0):
-    if root is not None:
+    if root:
+        str_first_pos, str_last_pos = stringfy(root)
+
         show_tree_from(root.right, level + 1)
-        print(' ' * 4 * level + '-> ' + str(hash(root)))
+        print(' ' * 4 * level + '-> ' + str_first_pos + ' ' + root.regex_symbol + ' ' + str_last_pos)
         show_tree_from(root.left, level + 1)
 
 
 if __name__ == "__main__":
-    a = '(a | b)*abb'
-    tree = SyntaxTree(a)
-    show_tree_from(tree.root)
-    tree.root.gen_follow_pos()
-    print(hash(tree.root))
+    a = 'a(a | b)*a'
+    t = SyntaxTree(a)
+    show_tree_from(t.root)
+    print(stringfy(t.root))
