@@ -6,11 +6,14 @@ def fa_from(regex) -> FiniteAutomata:
     result = FiniteAutomata()
 
     tree = SyntaxTree(regex)
+    final_states_id = str(tree.root.right.serial_number)
 
     tree.root.calculate_follow_pos()
 
     unmarked = [tree.root.first_pos()]
     d_states = [tree.root.first_pos()]
+
+    initial_state_not_set = True
 
     while unmarked:
         first_pos = unmarked.pop(0)
@@ -28,7 +31,17 @@ def fa_from(regex) -> FiniteAutomata:
             if gatherer not in d_states:
                 d_states.append(gatherer)
                 unmarked.append(gatherer)
+
+                if initial_state_not_set:
+                    result.initial_state = src_state
+                    initial_state_not_set = False
+
                 result.states |= {src_state} | {dst_state}
+
+                if final_states_id in src_state.label:
+                    result.final_states |= {src_state}
+                if final_states_id in dst_state.label:
+                    result.final_states |= {dst_state}
 
             if not result.transitions.get((src_state, terminal)):
                 result.transitions[(src_state, terminal)] = {dst_state}
@@ -63,8 +76,5 @@ def __squash_into_state(nodes: set) -> State:
 
 
 if __name__ == '__main__':
-    fa1 = fa_from('(b|&)(ab)*(a|&)')
-    print(fa1)
-
     fa2 = fa_from('b?(ab)*a?')
     print(fa2)
