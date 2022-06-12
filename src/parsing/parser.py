@@ -2,9 +2,7 @@ from src.structures.automata.fa import FiniteAutomata
 from src.exceptions.MalformedFileError import MalformedFileError
 from src.structures.automata.state import State
 from src import resource_dir
-from time import process_time_ns as curr_time
-from loader import save
-
+from src.parsing.loader import save
 
 __state_cache = dict()
 
@@ -21,18 +19,19 @@ def parse_fa_from(filepath: str) -> FiniteAutomata:
 
     for s in str_states:
         if s.__contains__('->'):  # Adds initial state...
-            finite_automata.initial_state = State(curr_time(), s)
-            finite_automata.states |= {finite_automata.initial_state}
+            state_ref = State(s)
+            finite_automata.initial_state = state_ref
+            finite_automata.states = {finite_automata.initial_state}
             __state_cache[s[2:]] = finite_automata.initial_state  # Holds label without arrow.
 
         elif s.__contains__('*'):  # ... And final states.
-            state_ref = State(curr_time(), s)
+            state_ref = State(s)
             finite_automata.final_states |= {state_ref}
             finite_automata.states |= finite_automata.final_states
             __state_cache[s[1:]] = state_ref  # Holds label without star.
 
         else:  # Add rest of states that are not initial nor final.
-            state_ref = State(curr_time(), s)
+            state_ref = State(s)
             finite_automata.states |= {state_ref}
             __state_cache[s] = state_ref  # Cuts nothing from label as it does not have an arrow nor a star.
 
@@ -45,8 +44,10 @@ def parse_fa_from(filepath: str) -> FiniteAutomata:
         src = __state_cache[digested_line[0]]
         input_symbol = digested_line[1]
         dst = search_states(digested_line[3:])
-
         finite_automata.transitions[(src, input_symbol)] = dst
+
+    # for state in finite_automata.states:
+    #     print(str(state))
 
     return finite_automata
 

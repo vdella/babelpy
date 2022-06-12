@@ -1,15 +1,12 @@
 from src.structures.automata.state import State
 from prettytable import PrettyTable
-from time import process_time_ns as curr_time
 
 
 class FiniteAutomata:
 
     def __init__(self):
-        start = State(0)
-
-        self.initial_state = start
-        self.states = {self.initial_state}
+        self.initial_state = State()
+        self.states = {}
         self.transitions = dict()
         self.final_states = set()
 
@@ -43,7 +40,6 @@ class FiniteAutomata:
         self.initial_state.label = self.initial_state.label[2:]
         other.initial_state.label = other.initial_state.label[2:]
 
-        new_fa.initial_state = State(curr_time())
         new_fa.states = self.states | other.states | {new_fa.initial_state}
         new_fa.transitions = self.transitions | other.transitions
         new_fa.transitions[(new_fa.initial_state, '&')] = {self.initial_state, other.initial_state}

@@ -1,7 +1,10 @@
+from time import process_time_ns
+
+
 class State:
 
-    def __init__(self, identifier: int, label: str = None):
-        self.id = identifier
+    def __init__(self, label: str = None):
+        self.id = process_time_ns()
         self.label = label
 
     def __str__(self):
@@ -16,5 +19,5 @@ class State:
 
 if __name__ == '__main__':
     s = set()
-    s.add(State(0))
+    s.add(State())
     print(s.pop())

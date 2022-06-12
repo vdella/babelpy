@@ -8,9 +8,9 @@ def save(fa: FiniteAutomata, filename='generated.txt'):
 
         for state in fa.states:
             if state == fa.initial_state:
-                f.write('->{}\n'.format(str(state)))
+                f.write('{}\n'.format(str(state)))
             elif state in fa.final_states:
-                f.write('*{}\n'.format(str(state)))
+                f.write('{}\n'.format(str(state)))
             else:
                 f.write(str(state) + '\n')
 
