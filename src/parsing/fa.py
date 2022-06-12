@@ -4,7 +4,6 @@ from src.structures.automata.state import State
 from src import resource_dir
 from loader import save
 
-
 __state_cache = dict()
 
 
@@ -20,8 +19,9 @@ def parse_fa_from(filepath: str) -> FiniteAutomata:
 
     for s in str_states:
         if s.__contains__('->'):  # Adds initial state...
-            finite_automata.initial_state = State(s)
-            finite_automata.states |= {finite_automata.initial_state}
+            state_ref = State(s)
+            finite_automata.initial_state = state_ref
+            finite_automata.states = {finite_automata.initial_state}
             __state_cache[s[2:]] = finite_automata.initial_state  # Holds label without arrow.
 
         elif s.__contains__('*'):  # ... And final states.
@@ -44,8 +44,10 @@ def parse_fa_from(filepath: str) -> FiniteAutomata:
         src = __state_cache[digested_line[0]]
         input_symbol = digested_line[1]
         dst = search_states(digested_line[3:])
-
         finite_automata.transitions[(src, input_symbol)] = dst
+
+    # for state in finite_automata.states:
+    #     print(str(state))
 
     return finite_automata
 
