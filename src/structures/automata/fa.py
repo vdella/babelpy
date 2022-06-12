@@ -59,8 +59,13 @@ class FiniteAutomata:
         table.field_names = ['Transition', 'Arrival']
 
         for key, value in self.transitions.items():
-
             state = str(key[0])
+
+            if key[0] in self.final_states:
+                state = '*{}'.format(str(state))
+            if key[0] == self.initial_state:
+                state = '->{}'.format(str(state))
+
             symbol = key[1]
             transition = (state, symbol)
 

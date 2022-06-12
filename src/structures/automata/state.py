@@ -11,10 +11,10 @@ class State:
         return self.label if self.label is not None else 'q{}'.format(self.id)
 
     def __hash__(self):
-        return hash(self.id)
+        return hash(self.label)
 
     def __eq__(self, other):
-        return self.id == other.id
+        return self.label == other.label
 
 
 if __name__ == '__main__':
