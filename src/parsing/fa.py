@@ -2,7 +2,7 @@ from src.structures.automata.fa import FiniteAutomata
 from src.exceptions.MalformedFileError import MalformedFileError
 from src.structures.automata.state import State
 from src import resource_dir
-from loader import save
+from src.parsing.loader import save
 
 __state_cache = dict()
 

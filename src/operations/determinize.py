@@ -1,4 +1,4 @@
-from src.parsing.parser import parse_fa_from
+from src.parsing.fa import parse_fa_from
 from src.structures.automata.fa import FiniteAutomata
 from src import resource_dir
 from src.structures.automata.state import State
@@ -7,8 +7,6 @@ from src.parsing.loader import save
 
 __state_cache = dict()
 
-# ATENÇÃO DELLA A PARTE DE DETERMINIZAÇÃO POR EPSILON COMEÇA NA LINHA 98
-#  COMENTEI AS FUNÇÕES LA PARA VER SE TU ENTENDE ALGO
 
 class Determinization:
     def __int__(self, fa: FiniteAutomata):
