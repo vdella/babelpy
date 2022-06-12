@@ -1,4 +1,5 @@
-from src.regex.format import eat
+from format import eat
+from format import sides_for
 
 
 class SyntaxTree:
@@ -6,15 +7,15 @@ class SyntaxTree:
     def __init__(self, regex):
         digest, self.terminals = eat(regex)
         self.root: Node = _tree_from(digest)
-        _attach_serial_to(self)
+        _add_serials_to(self)
 
 
-def _attach_serial_to(tree: SyntaxTree):
-
+def _add_serials_to(tree: SyntaxTree):
+    """Adds serial numbers to every terminal, from left to right, in a :param tree:."""
     serial = 1
 
     def seek_from(node):
-
+        # Ints are immutable, so we need to declare an outer scope variable in order to change it through recursion.
         nonlocal serial
 
         left, right = node.left, node.right
@@ -37,36 +38,21 @@ def _attach_serial_to(tree: SyntaxTree):
 
 
 def _tree_from(regex):
-
-    def __sides_for(operator):
-        left_tree, right_tree = str(), str()
-        parenthesis = 0
-
-        for i in range(len(regex) - 1, -1, -1):
-            if regex[i] == operator and parenthesis == 0:
-                left_tree = regex[:i]
-                return left_tree, right_tree[::-1]
-
-            if regex[i] == ')':
-                parenthesis += 1
-            elif regex[i] == '(':
-                parenthesis -= 1
-
-            right_tree += regex[i]
-
-        return left_tree, right_tree[::-1]
-
-    left, right = __sides_for('|')
+    left, right = sides_for('|', regex)
     if left:
         return Node('|', _tree_from(left), _tree_from(right))
 
-    left, right = __sides_for('.')
+    left, right = sides_for('.', regex)
     if left:
         return Node('.', _tree_from(left), _tree_from(right))
 
-    left, _ = __sides_for('*')
+    left, _ = sides_for('*', regex)
     if left:
         return Node('*', _tree_from(left))
+
+    left, _ = sides_for('?', regex)
+    if left:
+        return Node('|', _tree_from(left), Node('&'))
 
     if regex[0] == '(' and regex[-1] == ')':
         return _tree_from(regex[1:-1])
@@ -86,7 +72,9 @@ class Node:
         self.follow_pos = set()
 
     def __str__(self):
-        return self.regex_symbol
+        """Returns a node's regex symbol with its first_pos() and last_pos() by its sides."""
+        str_first_pos, str_last_pos = stringfy(self)
+        return str_first_pos + ' ' + self.regex_symbol + ' ' + str_last_pos
 
     def nullable(self) -> bool:
         if self.regex_symbol == '&' or self.regex_symbol == '*':
@@ -129,11 +117,10 @@ class Node:
             case _:
                 return {self}
 
-    def gen_follow_pos(self) -> ():
-        # TODO test.
+    def calculate_follow_pos(self) -> ():
         for children in {self.left, self.right}:
             if children:
-                children.gen_follow_pos()
+                children.calculate_follow_pos()
 
         if self.regex_symbol == '.':
             for children in self.left.last_pos():
@@ -145,6 +132,8 @@ class Node:
 
 
 def stringfy(node):
+    """:returns the first_pos() and last_pos() of a :param node: as strings
+    in order to print them in Node.__str__()."""
     first_pos = [n.serial_number for n in node.first_pos()]
     first_pos.sort()
 
@@ -156,15 +145,12 @@ def stringfy(node):
 
 def show_tree_from(root, level=0):
     if root:
-        str_first_pos, str_last_pos = stringfy(root)
-
         show_tree_from(root.right, level + 1)
-        print(' ' * 4 * level + '-> ' + str_first_pos + ' ' + root.regex_symbol + ' ' + str_last_pos)
+        print(' ' * 4 * level + '-> ' + str(root))
         show_tree_from(root.left, level + 1)
 
 
 if __name__ == "__main__":
-    a = 'a(a | b)*a'
+    a = '(&|b)(ab)*(&|a)'
     t = SyntaxTree(a)
     show_tree_from(t.root)
-    print(stringfy(t.root))

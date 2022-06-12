@@ -1,4 +1,4 @@
-from src.regex.tree import SyntaxTree, show_tree_from
+from src.regex.tree import SyntaxTree
 from src.structures.automata.fa import FiniteAutomata, State
 
 
@@ -7,9 +7,7 @@ def fa_from(regex) -> FiniteAutomata:
 
     tree = SyntaxTree(regex)
 
-    show_tree_from(tree.root)
-
-    tree.root.gen_follow_pos()
+    tree.root.calculate_follow_pos()
 
     unmarked = [tree.root.first_pos()]
     d_states = [tree.root.first_pos()]
@@ -41,12 +39,16 @@ def fa_from(regex) -> FiniteAutomata:
 
 
 def __remove_useless_states(fa: FiniteAutomata):
-    cached_transitions = dict(fa.transitions)
+    cached_transitions = dict(fa.transitions)  # Copy as we will change the size of fa.transactions during iteration.
 
     for key in cached_transitions.keys():
         state, symbol = key
 
-        if state.label == '' or symbol == '#':
+        # The resulting automata will always be deterministic. Thus, the destiny set of states contains only one.
+        # If that said destiny state has an empty string as a label, it's useless and needs to be removed.
+        arrival = list(cached_transitions[key])[0]
+
+        if state.label == '' or symbol == '#' or arrival.label == '':
             del fa.transitions[key]
 
 
@@ -61,6 +63,8 @@ def __squash_into_state(nodes: set) -> State:
 
 
 if __name__ == '__main__':
-    fa1 = fa_from('(a|b)*abb')
+    fa1 = fa_from('(b|&)(ab)*(a|&)')
     print(fa1)
 
+    fa2 = fa_from('b?(ab)*a?')
+    print(fa2)

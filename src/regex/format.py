@@ -6,28 +6,38 @@ non_terminals = operators | parenthesis
 def eat(regex) -> list and set:
     """Eats a non formatted regex and returns its list digested form
     with its terminal symbols."""
-    if regex[-1] == '#':
+
+    if len(regex) == 1:
+        # If a regex is 1 char long, that regex is already digested.
+        return [regex], {regex}
+
+    if regex[-1] == '#':  # No need to add # if the regex already has it.
         digest = __trim_blank_spaces(regex)
     else:
         digest = __trim_blank_spaces(regex) + '#'
+
     digest = __add_missing_concatenations(digest)
-    return list(digest), __terminals_from(digest)
+    return list(digest), __terminals_from(digest) | {'&'}
 
 
 def __add_missing_concatenations(regex):
-    """Gets a simple regex and reads it char-by-char; those that are not accompanied
-    by the concatenation operator will have it added."""
-    stripped = list(regex)
-    for i in range(len(stripped)):
-        if stripped[i] not in operators - {'.'} and stripped[i] not in parenthesis \
-                and not __non_terminal_surrounded(regex, i) and not __left_parenthesis_surrounded(regex, i):
-            stripped[i] = '.' + stripped[i]
-    return ''.join(stripped)  # Turns a list of strings into a single string.
+    stripped = list(regex.replace('.', ''))
+    concatenated = '.'.join(stripped)  # Join all strings in a list of strings with periods.
+
+    # As we added '.' between every string, we need to trim the wrong additions.
+    return concatenated.replace('(.', '(').replace('.)', ')').replace('.|.', '|').replace('.*', '*').replace('.?', '?')
 
 
 def __non_terminal_surrounded(regex: str, place) -> bool:
     """Checks if a character is surrounded by non-terminals by any of its sides."""
-    return regex[place - 1] in non_terminals and regex[place + 1] in non_terminals
+    before = regex[place - 1]
+
+    if place == len(regex) - 1:  # Checks if 'place' is at the regex' final position.
+        return False
+
+    after = regex[place + 1]
+
+    return before in non_terminals and after in non_terminals
 
 
 def __left_parenthesis_surrounded(regex: str, place) -> bool:
@@ -46,11 +56,28 @@ def __terminals_from(regex) -> set:
     return terminals
 
 
+def sides_for(operator, regex):
+    """:returns the inner regexes of a :param regex
+    at the side of a given :param operator"""
+
+    left_tree, right_tree = str(), str()
+    parenthesis_count = 0
+
+    for i in range(len(regex) - 1, -1, -1):  # We'll be looking from right to left.
+        if regex[i] == operator and parenthesis_count == 0:
+            left_tree = regex[:i]
+            return left_tree, right_tree[::-1]
+
+        if regex[i] == ')':
+            parenthesis_count += 1
+        elif regex[i] == '(':
+            parenthesis_count -= 1
+
+        right_tree += regex[i]
+
+    return left_tree, right_tree[::-1]
+
+
 def __trim_blank_spaces(regex: str) -> str:
     return regex.replace(' ', '')
 
-
-if __name__ == '__main__':
-    print(__terminals_from('(ab)*abb'))
-    print(__left_parenthesis_surrounded('(ab)*abb', 1))
-    print(eat('(a|b)*abb'))
