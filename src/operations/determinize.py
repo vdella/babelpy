@@ -18,7 +18,6 @@ class Determinization:
     def determinize_automata(self):
         symbols = self.get_symbols()
         if '&' in symbols:
-            print('contem epsilon')
             self.create_epsilon_fecho()
             self.new_epsilon_autamata()
 
@@ -37,8 +36,6 @@ class Determinization:
 
                 new_states = list(dict.fromkeys(new_states))
                 self.create_new_states(new_states)
-                # print(new_states)
-                # return self.fa
 
     def create_new_states(self, new_list: list()):
         for i in new_list:
@@ -118,7 +115,6 @@ class Determinization:
                     x.append(j)
                     x = list(dict.fromkeys(x))
                 i = i + 1
-            # print(x)
             self.epsilon_fecho[state] = x
 
     # inicia a criação de um proximo automato apenas com transiçoes por E-fecho
@@ -137,7 +133,7 @@ class Determinization:
         self.create_transition_epsilon(initial_state, new_fa)
 
         # esse range seria a parte recursiva para criar novos estados, esta assim para testes menores
-        for irange in range(2):
+        for irange in range(4):
             new_states = list()
             for key, value in new_fa.transitions.items():
                 novo_estado = ''
@@ -149,27 +145,30 @@ class Determinization:
             new_states = list(dict.fromkeys(new_states))
             print(new_states)
 
+            for i in new_states:
+                if not(i is None):
+                    i = i.replace('->', '')
+                    new_state = State(i)
+                    new_fa.states.add(new_state)
+                    self.create_transition_epsilon(new_state, new_fa)
 
-        for i in new_states:
-            i = i.replace('->', '')
-            new_state = State(i)
-            print(new_state.label)
-            new_fa.states.add(new_state)
-            self.create_transition_epsilon(new_state, new_fa)
+        # self.fa = new_fa
+        # save(new_fa)
 
-        # for key, value in new_fa.transitions.items():
-        #     print(str(key[0]))
-        #     print(key[1])
-        #     for v in value:
-        #         print(str(v))
+        for h in new_fa.states:
+            print(h.label)
 
-        # for h in new_fa.states:
-        #     print(h.label)
+        for key, value in new_fa.transitions.items():
+            print(str(key[0]))
+            print(key[1])
+            for v in value:
+                print(str(v))
 
     # em teoria os proximos dois defs deverian transformar uma transição por 0 por exemplo
     # em um estado para saber se ele ja existe
     def transition_to_state_epsilon(self, malformed_state: str, new_fa):
         state = ''.join(sorted(malformed_state))
+        state = state.replace('->', '')
         if state.__contains__('*'):
             state = state.replace('*', '')
             state = "*" + state
@@ -206,12 +205,12 @@ class Determinization:
                             new_destiny = set.union(new_destiny, value)
 
             for s in new_destiny:
-                new_epsilon_destiny.append(self.epsilon_fecho[s])
+                if not((str(s)) == ''):
+                    new_epsilon_destiny.append(self.epsilon_fecho[s])
 
             flat_list = [x for xs in new_epsilon_destiny for x in xs]
             flat_list = list(dict.fromkeys(flat_list))
             new_fa.transitions[(new_state, i)] = flat_list
-
 
 if __name__ == '__main__':
     fa1 = parse_fa_from(resource_dir / 'simple_nfa.txt')
