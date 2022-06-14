@@ -2,7 +2,6 @@ from src.structures.automata.fa import FiniteAutomata
 from src.exceptions.MalformedFileError import MalformedFileError
 from src.structures.automata.state import State
 from src import resource_dir
-from src.parsing.loader import save
 
 __state_cache = dict()
 
@@ -18,14 +17,14 @@ def parse_fa_from(filepath: str) -> FiniteAutomata:
     str_states = cleaned[1: cleaned.index('*transitions')]
 
     for s in str_states:
-        if s.__contains__('->'):  # Adds initial state...
-            state_ref = State(s)
+        if '->' in s:  # Adds initial state...
+            state_ref = State(s[2:])
             finite_automata.initial_state = state_ref
             finite_automata.states = {finite_automata.initial_state}
             __state_cache[s[2:]] = finite_automata.initial_state  # Holds label without arrow.
 
-        elif s.__contains__('*'):  # ... And final states.
-            state_ref = State(s)
+        elif '*' in s:  # ... And final states.
+            state_ref = State(s[1:])
             finite_automata.final_states |= {state_ref}
             finite_automata.states |= finite_automata.final_states
             __state_cache[s[1:]] = state_ref  # Holds label without star.
@@ -85,7 +84,7 @@ def __verify(file_lines: list):
     an exception to indicate a malformed file."""
 
     # Needs to check the preambles. The file needs '*states' and '*transitions' preambles.
-    if not file_lines.__contains__('*states') or not file_lines.__contains__('*transitions'):
+    if '*states' not in file_lines or '*transitions' not in file_lines:
         raise MalformedFileError('File does not have preambles.')
 
     declared_states = file_lines[1:file_lines.index('*transitions')]
@@ -93,7 +92,7 @@ def __verify(file_lines: list):
     # The file has to include one, and only one, initial state for the automata.
     initial_states = 0
     for s in declared_states:
-        if s.__contains__('->'):
+        if '->' in s:
             initial_states += 1
 
     if initial_states != 1:
@@ -102,11 +101,4 @@ def __verify(file_lines: list):
 
 if __name__ == '__main__':
     fa1 = parse_fa_from(resource_dir / 'simple_nfa.txt')
-    print(fa1.is_nfa())
-
-    fa2 = parse_fa_from(resource_dir / 'ab_with_last_equals_first.txt')
-    print(fa2.is_nfa())
-
-    # print(fa1 | fa2)
-    save(fa1 | fa2)
-    print(parse_fa_from(resource_dir / 'generated_fa.txt'))
+    print(fa1)

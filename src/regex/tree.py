@@ -1,5 +1,4 @@
-from format import eat
-from format import sides_for
+from src.regex.format import eat, sides_for
 
 
 class SyntaxTree:

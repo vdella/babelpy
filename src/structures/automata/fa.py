@@ -18,26 +18,15 @@ class FiniteAutomata:
         cached_state = self.initial_state
 
         for symbol in sentence:
-            for s in self.transitions[(cached_state, symbol)]:
-                cached_state = s
+            for dst in self.transitions[(cached_state, symbol)]:
+                cached_state = dst
 
         return cached_state in self.final_states
 
     def gen_st(self, identifier: str) -> int:
-
-        if not (identifier in self.symbol_table):
+        if identifier not in self.symbol_table:
             self.symbol_table.append(identifier)
         return self.symbol_table.index(identifier)
-
-    def is_nfa(self):
-        """Checks for non-determinism in an automata. It's non-deterministic
-        if it has an '&' as an input in a transition or if one of its transitions has more
-        than one, or none, destiny states."""
-        for transition in self.transitions:
-            symbol = transition[1]
-            if symbol == '&' or len(self.transitions[transition]) != 1:
-                return True
-        return False
 
     def __or__(self, other):
         new_fa = FiniteAutomata()
