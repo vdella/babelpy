@@ -61,12 +61,12 @@ class Determinization:
 
     def transition_to_state(self, malformed_state: str):
         state = ''.join(sorted(malformed_state))
-        if state.__contains__('*'):
+        if '*' in state:
             state = state.replace('*', '')
             state = "*" + state
             if not (self.already_exists(state)):
                 return state
-        elif state.__contains__('->'):
+        elif '->' in state:
             state = state.replace('->', '')
             if not (self.already_exists(state)):
                 return state
@@ -169,17 +169,18 @@ class Determinization:
     def transition_to_state_epsilon(self, malformed_state: str, new_fa):
         state = ''.join(sorted(malformed_state))
         state = state.replace('->', '')
-        if state.__contains__('*'):
+        if '*' in state:
             state = state.replace('*', '')
             state = "*" + state
             if not (self.already_exists_epsilon(state, new_fa)):
                 return state
-        elif state.__contains__('->'):
+        elif '->' in state:
             state = state.replace('->', '')
             if not (self.already_exists_epsilon(state, new_fa)):
                 return state
 
-    def already_exists_epsilon(self, verify_state: str, new_fa):
+    @staticmethod
+    def already_exists_epsilon(verify_state: str, new_fa):
         for state in new_fa.states:
             if state.label == verify_state:
                 return True
@@ -211,6 +212,7 @@ class Determinization:
             flat_list = [x for xs in new_epsilon_destiny for x in xs]
             flat_list = list(dict.fromkeys(flat_list))
             new_fa.transitions[(new_state, i)] = flat_list
+
 
 if __name__ == '__main__':
     fa1 = parse_fa_from(resource_dir / 'simple_nfa.txt')
