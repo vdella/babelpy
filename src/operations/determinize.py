@@ -6,7 +6,7 @@ from src.parsing.loader import save
 
 
 class Determinization:
-    def __int__(self, fa: FiniteAutomata):
+    def __init__(self, fa: FiniteAutomata):
         self.fa = fa
         self.epsilon_transition = dict()
         self.epsilon_fecho = dict()
@@ -213,7 +213,6 @@ class Determinization:
 
 if __name__ == '__main__':
     fa1 = parse_fa_from(resource_dir / 'simple_nfa.txt')
-    x = Determinization()
-    x.__int__(fa1)
+    x = Determinization(fa1)
     save(fa1)
 
