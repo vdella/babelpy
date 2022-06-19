@@ -6,6 +6,7 @@ from src.parsing.loader import save
 
 
 class Determinization:
+
     def __init__(self, fa: FiniteAutomata):
         self.fa = fa
         self.epsilon_transition = dict()
@@ -13,7 +14,7 @@ class Determinization:
         self.determinize_automata()
 
     def determinize_automata(self):
-        symbols = self.get_symbols()
+        symbols = self.symbols()
         if '&' in symbols:
             self.create_epsilon_fecho()
             self.new_epsilon_autamata()
@@ -34,7 +35,7 @@ class Determinization:
                 new_states = list(dict.fromkeys(new_states))
                 self.create_new_states(new_states)
 
-    def create_new_states(self, new_list: list()):
+    def create_new_states(self, new_list: list):
         for i in new_list:
             i = i.replace('->', '')
             new_state = State(i)
@@ -45,15 +46,16 @@ class Determinization:
         new_state_label = self.__strip_arrows_and_star_from(new_state)
         new_state_label = sorted(new_state_label)
 
-        for i in self.get_symbols():
+        for i in self.symbols():
             new_destiny = None
-            for key, value in self.fa.transitions.items():
-                triste = str(key[0]).replace('->', '').replace('*', '')
+            for transition, arrival in self.fa.transitions.items():
+                src_state, symbol = transition
+                triste = str(src_state).replace('->', '').replace('*', '')
                 for state in new_state_label:
-                    if triste == state and key[1] == i and new_destiny is None:
-                        new_destiny = value
-                    elif triste == state and key[1] == i and not(new_destiny is None):
-                        new_destiny = set.union(new_destiny, value)
+                    if triste == state and symbol == i and new_destiny is None:
+                        new_destiny = arrival
+                    elif triste == state and symbol == i and new_destiny is not None:
+                        new_destiny = set.union(new_destiny, arrival)
             self.fa.transitions[(new_state, i)] = new_destiny
 
     def transition_to_state(self, malformed_state: str):
@@ -61,11 +63,11 @@ class Determinization:
         if '*' in state:
             state = state.replace('*', '')
             state = "*" + state
-            if not (self.already_exists(state)):
+            if not self.already_exists(state):
                 return state
         elif '->' in state:
             state = state.replace('->', '')
-            if not (self.already_exists(state)):
+            if not self.already_exists(state):
                 return state
 
     def already_exists(self, verify_state: str):
@@ -74,16 +76,18 @@ class Determinization:
                 return True
         return False
 
-    def __strip_arrows_and_star_from(self, state: State):
+    @staticmethod
+    def __strip_arrows_and_star_from(state: State):
         written_state = str(state)
         return written_state.replace('->', '').replace('*', '')
 
-    def get_symbols(self):
-        symbols = list()
-        for key in self.fa.transitions.keys():
-            symbols.append(key[1])
+    def symbols(self):
+        symbols = set()
 
-        symbols = list(dict.fromkeys(symbols))
+        for key in self.fa.transitions.keys():
+            _, symbol = key
+            symbols |= {symbol}
+
         return symbols
 
     # cria dicionario com E-fecho de todos os estados do automado
@@ -116,7 +120,7 @@ class Determinization:
 
     # inicia a criação de um proximo automato apenas com transiçoes por E-fecho
     def new_epsilon_autamata(self):
-        symbols = self.get_symbols()
+        symbols = self.symbols()
         initial_state_fecho = (self.epsilon_fecho[self.fa.initial_state])
         label = ''
         for x1 in initial_state_fecho:
@@ -187,7 +191,7 @@ class Determinization:
     def create_transition_epsilon(self, new_state: State(), new_fa):
         new_state_label = self.__strip_arrows_and_star_from(new_state)
         new_state_label = sorted(new_state_label)
-        symbols = self.get_symbols()
+        symbols = self.symbols()
         symbols.remove('&')
 
         for i in symbols:
