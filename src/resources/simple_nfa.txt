@@ -1,9 +1,14 @@
-*states
-->p
-*q
+#states
+p
+q
 r
-*s
-*transitions
+s
+#initial
+p
+#final
+q
+s
+#transitions
 p 0 -> p q
 p 1 ->
 q 0 -> r

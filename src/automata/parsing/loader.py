@@ -1,4 +1,4 @@
-from src.structures.automata.fa import FiniteAutomata
+from src.automata.structures.fa import FiniteAutomata
 from src import resource_dir
 
 

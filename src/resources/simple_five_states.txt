@@ -1,10 +1,15 @@
-*states
-->q0
-*q1
-*q2
+#states
+q0
+q1
+q2
 q3
 q4
-*transitions
+#initial
+q0
+#final
+q1
+q2
+#transitions
 q0 0 -> q1 q2
 q0 1 -> q2
 q1 0 -> q1

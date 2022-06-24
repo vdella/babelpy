@@ -1,8 +1,8 @@
-from src.structures.automata.fa import FiniteAutomata
+from src.automata.structures.fa import FiniteAutomata
 from src.exceptions.MalformedFileError import MalformedFileError
-from src.structures.automata.state import State
+from src.automata.structures.state import State
 from src import resource_dir
-from src.parsing.loader import save
+from src.automata.parsing.loader import save
 
 __state_cache = dict()
 
@@ -102,11 +102,12 @@ def __verify(file_lines: list):
 
 if __name__ == '__main__':
     fa1 = parse_fa_from(resource_dir / 'simple_nfa.txt')
+    print(fa1)
     print(fa1.is_nfa())
 
     fa2 = parse_fa_from(resource_dir / 'ab_with_last_equals_first.txt')
     print(fa2.is_nfa())
 
     # print(fa1 | fa2)
-    save(fa1 | fa2)
-    print(parse_fa_from(resource_dir / 'generated_fa.txt'))
+    # save(fa1 | fa2)
+    # print(parse_fa_from(resource_dir / 'generated_fa.txt'))

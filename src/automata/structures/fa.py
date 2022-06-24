@@ -33,9 +33,9 @@ class FiniteAutomata:
         """Checks for non-determinism in an automata. It's non-deterministic
         if it has an '&' as an input in a transition or if one of its transitions has more
         than one, or none, destiny states."""
-        for transition in self.transitions:
-            symbol = transition[1]
-            if symbol == '&' or len(self.transitions[transition]) != 1:
+        for transition, arrival in self.transitions.items():
+            _, symbol = transition
+            if symbol == '&' or len(arrival) != 1:
                 return True
         return False
 
