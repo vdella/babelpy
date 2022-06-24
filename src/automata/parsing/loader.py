@@ -4,31 +4,25 @@ from src import resource_dir
 
 def save(fa: FiniteAutomata, filename='generated_fa.txt'):
     with open(resource_dir / filename, 'w') as f:
-        f.write('*states\n')
-
+        f.write('#states\n')
         for state in fa.states:
-            if state == fa.initial_state:
-                f.write('{}\n'.format(str(state)))
-            elif state in fa.final_states:
-                f.write('{}\n'.format(str(state)))
-            else:
-                f.write(str(state) + '\n')
+            f.write('{}\n'.format(state))
 
-        f.write('*transitions\n')
+        f.write('#initial\n')
+        f.write('{}\n'.format(fa.initial_state))
 
-        for transition in fa.transitions:
-            src = __strip_arrows_and_star_from(transition[0])
-            f.write('{} {} -> '.format(src, transition[1]))
+        f.write('#final\n')
+        for final in fa.final_states:
+            f.write('{}\n'.format(final))
 
-            destinies = list(fa.transitions[transition])
+        f.write('#transitions\n')
+        for transition, arrival in fa.transitions.items():
+            src_state, symbol = transition
+            f.write('{} {} -> '.format(src_state, symbol))
+
+            destinies = list(arrival)
             for destiny in destinies:
-                dst = __strip_arrows_and_star_from(destiny)
                 if destiny == destinies[-1]:
-                    f.write('{}\n'.format(dst))
+                    f.write('{}\n'.format(destiny))
                 else:
-                    f.write('{} '.format(dst))
-
-
-def __strip_arrows_and_star_from(state):
-    written_state = str(state)
-    return written_state.replace('->', '').replace('*', '')
+                    f.write('{} '.format(destiny))
