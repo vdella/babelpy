@@ -8,22 +8,18 @@ and a package named `PrettyTable.`
 
 1. `Python3.10`
 
-> `sudo apt update && sudo apt upgrade -y`
-> 
-> `sudo apt install software-properties-common -y`
-> 
-> `sudo add-apt-repository ppa:deadsnakes/ppa`
-> 
-> `sudo apt install python3.10`
+`sudo apt update && sudo apt upgrade -y`\
+`sudo apt install software-properties-common -y`\
+`sudo add-apt-repository ppa:deadsnakes/ppa`\
+`sudo apt install python3.10`
 
 2. `PrettyTable`
 
 For `PrettyTable` installation, you will need a `pip` compatible
 version with `Python3.10`.
 
-> `sudo apt install python3.10-distutils`
-> 
-> `python3.10 -m pip install -U prettytable`
+`sudo apt install python3.10-distutils`\
+`python3.10 -m pip install -U prettytable`
 
 ## How does it work?
 
