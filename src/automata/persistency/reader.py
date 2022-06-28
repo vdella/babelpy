@@ -2,14 +2,14 @@ from src.automata.structures.fa import FiniteAutomata
 from src.exceptions.MalformedFileError import MalformedFileError
 from src.automata.structures.state import State
 from src import resource_dir
-from src.automata.parsing.loader import save
+from src.automata.persistency.writer import write
 
 
 __state_cache = dict()
 
 
-def parse_fa_from(filepath: str) -> FiniteAutomata:
-    with open(filepath) as f:
+def read_fa_from(filepath: str) -> FiniteAutomata:
+    with open(resource_dir / filepath) as f:
         raw_fa = list(f)
         cleaned: list = __strip_blank_line(raw_fa)
         __verify(cleaned)
@@ -89,14 +89,14 @@ def __verify(file_lines: list):
 
 
 if __name__ == '__main__':
-    fa1 = parse_fa_from(resource_dir / 'simple_nfa.txt')
+    fa1 = read_fa_from('simple_nfa.txt')
     # print(fa1)
     # print(fa1.is_nfa())
 
-    fa2 = parse_fa_from(resource_dir / 'ab_with_last_equals_first.txt')
+    fa2 = read_fa_from('ab_with_last_equals_first.txt')
     # print(fa2)
     # print(fa2.is_nfa())
 
     print(fa1 | fa2)
-    save(fa1 | fa2)
-    print(parse_fa_from(resource_dir / 'generated_fa.txt'))
+    write(fa1 | fa2)
+    print(read_fa_from('generated_fa.txt'))
