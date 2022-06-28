@@ -66,11 +66,11 @@ to show the FA in user-friendly table-looking way
 by using `print(fa3)`.
 
 Along with the automata, there are modules to
-deal with data persistency. `parser` comes
-with `parse_fa_from(filepath: str)` to read
-an automata from a file; `loader`, responsible
+deal with data persistency. `reader` comes
+with `read_fa_from(filepath: str)` to read
+an automata from a file; `writer`, responsible
 for saving FA into `.txt` files, does so with
-its `save(FiniteAutomata)` function.
+its `write(FiniteAutomata)` function.
 
 #### File formatting
 
