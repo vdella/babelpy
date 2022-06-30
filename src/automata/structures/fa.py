@@ -1,4 +1,4 @@
-from src.structures.automata.state import State
+from src.automata.structures.state import State
 from prettytable import PrettyTable
 
 
@@ -23,6 +23,15 @@ class FiniteAutomata:
 
         return cached_state in self.final_states
 
+    def symbols(self):
+        symbols = set()
+
+        for key in self.transitions.keys():
+            _, symbol = key
+            symbols |= {symbol}
+
+        return symbols
+
     def gen_st(self, identifier: str) -> int:
         if identifier not in self.symbol_table:
             self.symbol_table.append(identifier)
@@ -31,12 +40,8 @@ class FiniteAutomata:
     def __or__(self, other):
         new_fa = FiniteAutomata()
 
-        # As the previous start states have arrows, we have to take them out
-        # before showing the results to the user.
-        self.initial_state.label = self.initial_state.label[2:]
-        other.initial_state.label = other.initial_state.label[2:]
-
         new_fa.states = self.states | other.states | {new_fa.initial_state}
+        new_fa.final_states = self.final_states | other.final_states
         new_fa.transitions = self.transitions | other.transitions
         new_fa.transitions[(new_fa.initial_state, '&')] = {self.initial_state, other.initial_state}
 

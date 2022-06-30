@@ -131,4 +131,4 @@ dmypy.json
 # PyCharm's IDEA folder
 .idea
 
-src/resources/generated_*
+src/resources/generated*

@@ -1,40 +1,27 @@
-from src.structures.automata.fa import FiniteAutomata
+from src.automata.structures.fa import FiniteAutomata
 from src.exceptions.MalformedFileError import MalformedFileError
-from src.structures.automata.state import State
+from src.automata.structures.state import State
 from src import resource_dir
+from src.automata.persistency.writer import write
 
 __state_cache = dict()
 
 
-def parse_fa_from(filepath: str) -> FiniteAutomata:
-    with open(filepath) as f:
+def read_fa_from(filepath: str) -> FiniteAutomata:
+    with open(resource_dir / filepath) as f:
         raw_fa = list(f)
         cleaned: list = __strip_blank_line(raw_fa)
         __verify(cleaned)
 
-    finite_automata = FiniteAutomata()
+    fa = FiniteAutomata()
 
-    str_states = cleaned[1: cleaned.index('*transitions')]
+    fa.states = {State(s) for s in cleaned[1: cleaned.index('#initial')]}
+    fa.initial_state = State(cleaned[cleaned.index('#initial') + 1])
+    fa.final_states = {State(s) for s in cleaned[cleaned.index('#final') + 1: cleaned.index('#transitions')]}
 
-    for s in str_states:
-        if '->' in s:  # Adds initial state...
-            state_ref = State(s[2:])
-            finite_automata.initial_state = state_ref
-            finite_automata.states = {finite_automata.initial_state}
-            __state_cache[s[2:]] = finite_automata.initial_state  # Holds label without arrow.
+    __populate_state_cache_from(fa)
 
-        elif '*' in s:  # ... And final states.
-            state_ref = State(s[1:])
-            finite_automata.final_states |= {state_ref}
-            finite_automata.states |= finite_automata.final_states
-            __state_cache[s[1:]] = state_ref  # Holds label without star.
-
-        else:  # Add rest of states that are not initial nor final.
-            state_ref = State(s)
-            finite_automata.states |= {state_ref}
-            __state_cache[s] = state_ref  # Cuts nothing from label as it does not have an arrow nor a star.
-
-    str_transitions = cleaned[cleaned.index('*transitions') + 1:]
+    str_transitions = cleaned[cleaned.index('#transitions') + 1:]
     for raw_line in str_transitions:
         # Raw line as 'src input -> dst'.
         digested_line = raw_line.split()
@@ -43,12 +30,17 @@ def parse_fa_from(filepath: str) -> FiniteAutomata:
         src = __state_cache[digested_line[0]]
         input_symbol = digested_line[1]
         dst = search_states(digested_line[3:])
-        finite_automata.transitions[(src, input_symbol)] = dst
+        fa.transitions[(src, input_symbol)] = dst
 
-    # for state in finite_automata.states:
-    #     print(str(state))
+    return fa
 
-    return finite_automata
+
+def __populate_state_cache_from(fa: FiniteAutomata) -> dict:
+    """Saves a record of :param fa: state inside the cache by using its label as key."""
+    for state in fa.states:
+        __state_cache[state.label] = state
+
+    return __state_cache
 
 
 def search_states(label_list) -> set:
@@ -84,21 +76,26 @@ def __verify(file_lines: list):
     an exception to indicate a malformed file."""
 
     # Needs to check the preambles. The file needs '*states' and '*transitions' preambles.
-    if '*states' not in file_lines or '*transitions' not in file_lines:
+    if '#states' not in file_lines or '#initial' not in file_lines\
+            or '#final' not in file_lines or '#transitions' not in file_lines:
         raise MalformedFileError('File does not have preambles.')
 
-    declared_states = file_lines[1:file_lines.index('*transitions')]
-
     # The file has to include one, and only one, initial state for the automata.
-    initial_states = 0
-    for s in declared_states:
-        if '->' in s:
-            initial_states += 1
+    initial_states = file_lines[file_lines.index('#initial') + 1: file_lines.index('#final')]
 
-    if initial_states != 1:
+    if len(initial_states) != 1:
         raise MalformedFileError('Incorrect initial state quantity.')
 
 
 if __name__ == '__main__':
-    fa1 = parse_fa_from(resource_dir / 'simple_nfa.txt')
-    print(fa1)
+    fa1 = read_fa_from('simple_nfa.txt')
+    # print(fa1)
+    # print(fa1.is_nfa())
+
+    fa2 = read_fa_from('ab_with_last_equals_first.txt')
+    # print(fa2)
+    # print(fa2.is_nfa())
+
+    print(fa1 | fa2)
+    write(fa1 | fa2)
+    print(read_fa_from('generated_fa.txt'))
