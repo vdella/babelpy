@@ -26,6 +26,7 @@ def read_fa_from(filepath: str) -> FiniteAutomata:
     for raw_line in str_transitions:
         # Raw line as 'src input -> dst'.
         digested_line = raw_line.split()
+        print(digested_line)
 
         # We have to search for references inside the dict cache.
         src = __state_cache[digested_line[0]]

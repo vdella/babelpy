@@ -9,7 +9,7 @@ class FiniteAutomata:
         self.states = {self.initial_state}
         self.transitions = dict()
         self.final_states = set()
-        self.symbol_table = []
+        self.symbol_table = list()
 
     def read(self, sentence: str) -> bool:
         """Iteratively loops over a transition table and
@@ -31,6 +31,16 @@ class FiniteAutomata:
             symbols |= {symbol}
 
         return symbols
+
+    def is_nfa(self) -> bool:
+        """Checks for non-determinism in an automata. It's non-deterministic
+        if it has an '&' as an input in a transition or if one of its transitions has more
+        than one, or none, destiny states."""
+        for transition, arrival in self.transitions.items():
+            _, symbol = transition
+            if transition == '&' or len(arrival) != 1:
+                return True
+        return False
 
     def gen_st(self, identifier: str) -> int:
 
