@@ -14,7 +14,7 @@ def read_grammar_from(filepath) -> ContextFreeGrammar:
         productions[non_terminal] = set(production[1:])  # Without '->', only productions are left in the line.
 
     terminals = set()
-    non_terminals = set()
+    non_terminals = {non_terminal for non_terminal in productions.keys()}
     for _, arrival in productions.items():
         unified = ''.join(arrival)  # In order to avoid O(n^3), turns the list into a single string...
 
@@ -44,8 +44,11 @@ def verify(grammar):
 
 
 if __name__ == '__main__':
-    grammar = read_grammar_from('a_even_b_even.txt')
-    print(grammar.terminals)
-    print(grammar.non_terminals)
-    print(grammar.symbols)
-    print(grammar)
+    grammar = read_grammar_from('reduced_grammar1.txt')
+
+    for key, value in grammar.first().items():
+        if key.isupper():
+            print(key, value)
+
+    # grammar2 = read_grammar_from('reduced_grammar2.txt')
+    # print(grammar2)
