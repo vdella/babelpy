@@ -1,8 +1,8 @@
 from src.automata.structures.fa import FiniteAutomata
-from src.automata.parsing.parser import parse_fa_from
+from src.automata.persistency.reader import read_fa_from
 from src import resource_dir
 from src.automata.structures.state import State
-from src.automata.parsing.loader import save
+from src.automata.persistency.writer import write
 
 
 def determinize(nfa) -> FiniteAutomata:
@@ -124,9 +124,9 @@ def transitions_for(nfa, state: State) -> dict:
 
 
 if __name__ == '__main__':
-    fa = parse_fa_from(resource_dir / 'simple_nfa.txt')
+    fa = read_fa_from(resource_dir / 'simple_nfa.txt')
 
     fa = determinize(fa)
     print(fa)
 
-    save(fa)
+    write(fa)
