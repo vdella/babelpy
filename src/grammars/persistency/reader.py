@@ -40,18 +40,18 @@ def __trim(lines) -> list:
     return trimmed
 
 
-def verify(grammar):
-    # TODO implement.
-    pass
-
-
 if __name__ == '__main__':
-    grammar = read_grammar_from('reduced_grammar1.txt')
+    grammar = read_grammar_from('reduced_grammar2.txt')
     print(grammar)
 
     for key, value in grammar.first().items():
         if key.isupper():
             print(key, value)
+
+    print()
+
+    for key, value in grammar.follow().items():
+        print(key, value)
 
     # grammar2 = read_grammar_from('reduced_grammar2.txt')
     # print(grammar2)
