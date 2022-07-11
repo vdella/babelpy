@@ -1,5 +1,7 @@
 from src import resource_dir
-from src.grammars.cfg import ContextFreeGrammar
+from src.grammars.structures.cfg import ContextFreeGrammar
+from ordered_set import OrderedSet
+from collections import OrderedDict
 
 
 def read_grammar_from(filepath) -> ContextFreeGrammar:
@@ -8,13 +10,13 @@ def read_grammar_from(filepath) -> ContextFreeGrammar:
 
     trimmed = __trim(lines)
 
-    productions = dict()
+    productions = OrderedDict()
     for production in trimmed:
         non_terminal = production[0]  # Expected to always be non-terminal.
         productions[non_terminal] = set(production[1:])  # Without '->', only productions are left in the line.
 
     terminals = set()
-    non_terminals = {non_terminal for non_terminal in productions.keys()}
+    non_terminals = OrderedSet([non_terminal for non_terminal in productions.keys()])
     for _, arrival in productions.items():
         unified = ''.join(arrival)  # In order to avoid O(n^3), turns the list into a single string...
 
@@ -45,6 +47,7 @@ def verify(grammar):
 
 if __name__ == '__main__':
     grammar = read_grammar_from('reduced_grammar1.txt')
+    print(grammar)
 
     for key, value in grammar.first().items():
         if key.isupper():

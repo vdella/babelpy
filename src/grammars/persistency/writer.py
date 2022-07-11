@@ -1,4 +1,4 @@
-from src.grammars.cfg import ContextFreeGrammar
+from src.grammars.structures.cfg import ContextFreeGrammar
 from src import resource_dir
 from src.grammars.persistency.reader import read_grammar_from
 
