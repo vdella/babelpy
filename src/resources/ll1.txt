@@ -1,0 +1,20 @@
+#start
+E
+#non-terminals
+E
+E'
+T
+T'
+F
+#terminals
+∨
+∧
+¬
+id
+&
+#productions
+E -> TE′
+E′ -> ∨TE′ | &
+T -> FT′
+T′ -> ∧FT′ | &
+F -> ¬F | id
