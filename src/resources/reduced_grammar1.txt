@@ -8,6 +8,7 @@ A
 a
 b
 c
+d
 &
 #productions
 S -> Ab | ABc
