@@ -9,6 +9,9 @@ def write(cfg: ContextFreeGrammar, filename='generated_grammar.txt'):
 
 
 if __name__ == '__main__':
-    grammar = read_grammar_from('a_even_b_even.txt')
+    grammar = read_grammar_from('simple_grammar_recursion.txt')
     print(grammar)
+
+    grammar.left_recursion()
+
     write(grammar)

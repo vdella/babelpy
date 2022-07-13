@@ -41,17 +41,18 @@ def __trim(lines) -> list:
 
 
 if __name__ == '__main__':
-    grammar = read_grammar_from('reduced_grammar2.txt')
+    grammar = read_grammar_from('simple_grammar_recursion.txt')
     print(grammar)
 
-    for key, value in grammar.first().items():
-        if key.isupper():
-            print(key, value)
 
-    print()
-
-    for key, value in grammar.follow().items():
-        print(key, value)
+    # for key, value in grammar.first().items():
+    #     if key.isupper():
+    #         print(key, value)
+    #
+    # print()
+    #
+    # for key, value in grammar.follow().items():
+    #     print(key, value)
 
     # grammar2 = read_grammar_from('reduced_grammar2.txt')
     # print(grammar2)

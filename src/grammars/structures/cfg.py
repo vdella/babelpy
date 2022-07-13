@@ -1,5 +1,5 @@
 from ordered_set import OrderedSet
-
+import copy
 
 class ContextFreeGrammar:
 
@@ -127,3 +127,61 @@ class ContextFreeGrammar:
                     reversed_productions[non_terminal] |= {production[::-1]}
 
         return reversed_productions
+
+    def left_recursion(self):
+        self.eliminate_direct_recursion(self.start)
+        self.eliminate_indirect_recursion()
+
+    def eliminate_direct_recursion(self, non_terminal):
+        contem = set()
+        contem_ = set()
+        nao_contem = set()
+        nao_contem_ = set()
+        for production in self.productions[non_terminal]:
+            if production[0] == non_terminal:
+                contem.add(production)
+            else:
+                nao_contem.add(production)
+
+        if len(contem) != 0:
+            new_non_terminal = non_terminal + '_'
+            self.non_terminals |= {new_non_terminal}
+            for production in contem:
+                production = production.replace(non_terminal, '')
+                contem_.add(production + new_non_terminal)
+            contem_.add('&')
+            self.productions[new_non_terminal] = contem_
+
+            if len(nao_contem) != 0:
+                for production in nao_contem:
+                    nao_contem_.add(production + new_non_terminal)
+                self.productions[non_terminal] = nao_contem_
+            else:
+                nao_contem_.add(new_non_terminal)
+                self.productions[non_terminal] = nao_contem_
+
+    def eliminate_indirect_recursion(self):
+        non_terminals = copy.deepcopy(self.non_terminals)
+        i = 0
+        stop_condition = True
+        while stop_condition:
+            for j in range(i):
+                for production in self.productions[non_terminals[i]]:
+                    if production[0] == non_terminals[j]:
+                        new_productions = set()
+                        new_production = production.replace(production[0],
+                                                            '')  # nao pode ser o prod[0] pq pode ter simbolo repetido ex: SSa
+                        for prod_ind in self.productions[non_terminals[j]]:
+                            new_productions.add(prod_ind + new_production)
+
+                        prod_to_remove = production
+
+                for new_prod in new_productions:
+                    self.productions[non_terminals[i]].add(new_prod)
+                self.productions[non_terminals[i]].remove(prod_to_remove)
+                print(self.productions[non_terminals[i]])
+
+            self.eliminate_direct_recursion(non_terminals[i])
+            i = i + 1
+            if i >= len(non_terminals):
+                stop_condition = False
