@@ -9,6 +9,7 @@ C
 a
 b
 c
+d
 &
 #productions
 S -> ABC

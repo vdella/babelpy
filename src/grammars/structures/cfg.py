@@ -27,11 +27,18 @@ class ContextFreeGrammar:
         def build_for(symbol):
             productions = self.productions[symbol]
 
+            gatherer = str()
             for piece in productions:
                 head = piece[0]
+                piece_iterator = iter(piece)
 
                 if head in self.terminals or head == '&':  # Whether starts with a terminal or with &.
                     first[symbol] |= {head}
+                elif head not in self.symbols:
+                    while piece_iterator:
+                        gatherer += next(piece_iterator)
+                    else:
+                        raise Exception('Incorrect grammr found. Please fix.')
                 else:  # Starts with a non-terminal.
                     for letter in piece:
                         if letter in self.non_terminals and not first[letter]:
@@ -43,7 +50,9 @@ class ContextFreeGrammar:
                             # be added if the symbol is not itself nullable.
                             first[symbol] -= {'&'}
 
+        # for non_terminal in self.non_terminals:
         build_for(self.start)
+
         return first
 
     def nullable(self):
@@ -51,23 +60,22 @@ class ContextFreeGrammar:
         Terminals are not nullable by default. Non-terminals will
         be nullable if there is at least one path from which they can find an &."""
         nullable = {symbol: False for symbol in self.symbols}
-        visited = {self.start}
+        visited = {non_terminal: False for non_terminal in self.non_terminals}
 
         def check(symbol):
-            nonlocal visited
+            productions = self.productions[symbol]
 
-            if symbol in self.non_terminals:
-                if '&' in self.productions[symbol]:  # &-production.
+            for production in productions:
+                if production == '&':
                     nullable[symbol] = True
-                else:  # Didn't find &. Executes depth-first search.
-                    for production in self.productions[symbol]:
-                        for letter in production:
-                            if letter in self.non_terminals and letter not in visited:
-                                visited |= {letter}  # Marks as visited to avoid repetition.
-                                check(letter)
 
-                        if all([nullable[letter] for letter in production]):  # Nullable production found.
-                            nullable[symbol] = True
+                for letter in production:
+                    if letter in self.non_terminals and not visited[letter]:
+                        visited[letter] = True
+                        check(letter)
+
+                if all([nullable.get(letter) for letter in production]):
+                    nullable[symbol] = True
 
         check(self.start)
         return nullable

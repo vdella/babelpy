@@ -22,19 +22,23 @@ def read_grammar_from(filepath) -> ContextFreeGrammar:
     return ContextFreeGrammar(non_terminals, terminals, productions, start)
 
 
+def __show_first_from(cfg):
+    for key, value in cfg.first().items():
+        if key.isupper():
+            print(key, value)
+    print()
+
+
 if __name__ == '__main__':
-    grammar = read_grammar_from('simple_grammar_recursion.txt')
-    print(grammar)
-
-
-    # for key, value in grammar.first().items():
-    #     if key.isupper():
-    #         print(key, value)
-    #
-    # print()
-    #
-    # for key, value in grammar.follow().items():
-    #     print(key, value)
+    # grammar1 = read_grammar_from('a_even_b_even.txt')
+    # print(grammar1)
+    # __show_first_from(grammar1)
 
     # grammar2 = read_grammar_from('reduced_grammar2.txt')
     # print(grammar2)
+    # print(grammar2.nullable())
+    # __show_first_from(grammar2)
+
+    grammar3 = read_grammar_from('ll1.txt')
+    print(grammar3)
+    __show_first_from(grammar3)

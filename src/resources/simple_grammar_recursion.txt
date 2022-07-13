@@ -1,3 +1,16 @@
+#start
+S
+#non-terminals
+S
+A
+C
+#terminals
+a
+b
+c
+d
+e
+#productions
 S -> Aa | b
 A -> Bc | Sd | c
 B -> Sc | e
