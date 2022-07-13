@@ -1,3 +1,15 @@
+#start
+S
+#non-terminals
+S
+A
+B
+C
+#terminals
+a
+b
+c
+#productions
 S -> aA | bB | cS
 A -> aS | bC | cA | b
 B -> aC | bS | cB | a
