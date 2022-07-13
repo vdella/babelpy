@@ -1,5 +1,6 @@
 from src import resource_dir
 from src.grammars.structures.cfg import ContextFreeGrammar
+from src.grammars.pattern_matching import find_terminal
 
 
 def read_grammar_from(filepath) -> ContextFreeGrammar:
@@ -30,15 +31,6 @@ def __show_first_from(cfg):
 
 
 if __name__ == '__main__':
-    # grammar1 = read_grammar_from('a_even_b_even.txt')
-    # print(grammar1)
-    # __show_first_from(grammar1)
-
-    # grammar2 = read_grammar_from('reduced_grammar2.txt')
-    # print(grammar2)
-    # print(grammar2.nullable())
-    # __show_first_from(grammar2)
-
-    grammar3 = read_grammar_from('ll1.txt')
-    print(grammar3)
+    grammar3 = read_grammar_from('reduced_grammar1.txt')
     __show_first_from(grammar3)
+    # __show_first_from(grammar3)
