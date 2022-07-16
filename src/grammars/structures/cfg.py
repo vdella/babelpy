@@ -1,5 +1,5 @@
 from ordered_set import OrderedSet
-import copy
+
 
 class ContextFreeGrammar:
 
@@ -152,7 +152,7 @@ class ContextFreeGrammar:
                 nao_contem.add(production)
 
         if len(contem) != 0:
-            new_non_terminal = non_terminal + '_'
+            new_non_terminal = non_terminal + '\''
             self.non_terminals |= {new_non_terminal}
             for production in contem:
                 production = production.replace(non_terminal, '')
@@ -169,16 +169,20 @@ class ContextFreeGrammar:
                 self.productions[non_terminal] = nao_contem_
 
     def eliminate_indirect_recursion(self):
-        non_terminals = copy.deepcopy(self.non_terminals)
+        non_terminals = list(self.non_terminals)
         i = 0
         stop_condition = True
+
+        new_productions = set()
+        prod_to_remove = str()
+
         while stop_condition:
             for j in range(i):
                 for production in self.productions[non_terminals[i]]:
                     if production[0] == non_terminals[j]:
                         new_productions = set()
-                        new_production = production.replace(production[0],
-                                                            '')  # nao pode ser o prod[0] pq pode ter simbolo repetido ex: SSa
+                        new_production = production.replace(production[0], str())
+                        # nao pode ser o prod[0] pq pode ter simbolo repetido ex: SSa
                         for prod_ind in self.productions[non_terminals[j]]:
                             new_productions.add(prod_ind + new_production)
 
@@ -186,7 +190,9 @@ class ContextFreeGrammar:
 
                 for new_prod in new_productions:
                     self.productions[non_terminals[i]].add(new_prod)
-                self.productions[non_terminals[i]].remove(prod_to_remove)
+                print(prod_to_remove)
+                if prod_to_remove and prod_to_remove in self.productions[non_terminals[i]]:
+                    self.productions[non_terminals[i]].remove(prod_to_remove)
                 print(self.productions[non_terminals[i]])
 
             self.eliminate_direct_recursion(non_terminals[i])

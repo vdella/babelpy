@@ -3,7 +3,7 @@ S
 #non-terminals
 S
 A
-C
+B
 #terminals
 a
 b
