@@ -3,6 +3,8 @@ from ordered_set import OrderedSet
 
 class ContextFreeGrammar:
 
+    MAX_FACTOR = 1
+
     def __init__(self, non_terminals, terminals, productions: dict, start='S'):
         self.non_terminals = non_terminals
         self.terminals = terminals
@@ -185,17 +187,73 @@ class ContextFreeGrammar:
                         # nao pode ser o prod[0] pq pode ter simbolo repetido ex: SSa
                         for prod_ind in self.productions[non_terminals[j]]:
                             new_productions.add(prod_ind + new_production)
-
                         prod_to_remove = production
-
                 for new_prod in new_productions:
                     self.productions[non_terminals[i]].add(new_prod)
-                print(prod_to_remove)
+                # print(prod_to_remove)
                 if prod_to_remove and prod_to_remove in self.productions[non_terminals[i]]:
                     self.productions[non_terminals[i]].remove(prod_to_remove)
-                print(self.productions[non_terminals[i]])
+                # print(self.productions[non_terminals[i]])
 
             self.eliminate_direct_recursion(non_terminals[i])
             i = i + 1
             if i >= len(non_terminals):
                 stop_condition = False
+
+    def number_derivation(self):
+        productions_non_terminals = set()
+        for prod in self.productions:
+            productions_non_terminals.add(prod[0])
+        productions_non_terminals = list(dict.fromkeys(productions_non_terminals))
+        return len(productions_non_terminals)
+
+    def factor(self):
+        # self.left_recursion()
+        iterations = 0
+        while iterations < ContextFreeGrammar.MAX_FACTOR:
+            length = self.number_derivation()
+            for _ in range(1):
+                self.eliminate_direct_non_determinism()
+            self.eliminate_indirect_non_determinism()
+            iterations += 1
+
+    def eliminate_direct_non_determinism(self):
+        variables = list(self.non_terminals)
+        for variable in variables:
+            derivations = self.productions[variable]
+            derivation_to_change = {}
+            for derivation in derivations:
+                head = derivation[0]
+                tail = derivation[1:]
+                if head not in derivation_to_change:
+                    derivation_to_change[head] = []
+                derivation_to_change[head].append(tail)
+
+            # print(derivation_to_change)
+            for head, tails in derivation_to_change.items():
+
+                already_added = False
+                if len(tails) == 1:
+                    continue
+
+                productions_new_state = set()
+                new_state = variable + '\''
+                self.productions[new_state] = {}
+                for tail in tails:
+
+                    if not already_added:
+                        self.productions[variable].add(head+new_state)
+                        already_added = True
+                    self.non_terminals |= {new_state}
+                    self.productions[variable].remove(head+tail)
+                    productions_new_state.add(tail)
+                self.productions[new_state] = productions_new_state
+
+        for variable in self.non_terminals:
+            print(variable)
+            print(self.productions[variable])
+
+
+    def eliminate_indirect_non_determinism(self):
+
+        pass
