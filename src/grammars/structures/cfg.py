@@ -32,31 +32,24 @@ class ContextFreeGrammar:
         def build_for(symbol):
             productions = self.productions[symbol]
 
-            gatherer = str()
             for piece in productions:
                 head = piece[0]
-                piece_iterator = iter(piece)
 
                 if head in self.terminals or head == '&':  # Whether starts with a terminal or with &.
                     first[symbol] |= {head}
-                elif head not in self.symbols:
-                    while piece_iterator:
-                        gatherer += next(piece_iterator)
-                    else:
-                        raise Exception('Incorrect grammr found. Please fix.')
                 else:  # Starts with a non-terminal.
                     for letter in piece:
                         if letter in self.non_terminals and not first[letter]:
                             build_for(letter)  # Executes a depth-first search from the given letter.
                         first[symbol] |= first[letter]
 
-                        if not nullable[symbol]:
-                            # & will be added by default if found in other firsts, but it must not
-                            # be added if the symbol is not itself nullable.
-                            first[symbol] -= {'&'}
+                        if not nullable[symbol]:    # & will be added by default if found in other firsts,
+                            first[symbol] -= {'&'}  # but it must not be added if the symbol is not itself nullable.
+                            break
 
         # for non_terminal in self.non_terminals:
-        build_for(self.start)
+        for non_terminal in self.non_terminals:
+            build_for(non_terminal)
 
         return first
 
