@@ -1,7 +1,12 @@
-from ordered_set import OrderedSet
+import copy
+import string
+
+#from ordered_set import OrderedSet
 
 
 class ContextFreeGrammar:
+    MAX_FACTOR = 10
+    VARIABLES = set(string.ascii_uppercase)
 
     def __init__(self, non_terminals, terminals, productions: dict, start='S'):
         self.non_terminals = non_terminals
@@ -127,7 +132,7 @@ class ContextFreeGrammar:
         return follow
 
     def __reversed_nullable_productions(self):
-        reversed_productions = {non_terminal: OrderedSet() for non_terminal in self.non_terminals}
+        reversed_productions = {non_terminal: set() for non_terminal in self.non_terminals}
 
         for non_terminal in self.non_terminals:
             for production in self.productions[non_terminal]:
@@ -136,66 +141,135 @@ class ContextFreeGrammar:
 
         return reversed_productions
 
+    def get_new_state(self):
+        disp = self.VARIABLES - self.non_terminals
+        return min(disp)
+
     def left_recursion(self):
-        self.eliminate_direct_recursion(self.start)
+        self.get_new_state()
+        # self.eliminate_direct_recursion(self.start)
         self.eliminate_indirect_recursion()
 
     def eliminate_direct_recursion(self, non_terminal):
         contem = set()
-        contem_ = set()
         nao_contem = set()
-        nao_contem_ = set()
+        new_state = self.get_new_state()
         for production in self.productions[non_terminal]:
-            if production[0] == non_terminal:
-                contem.add(production)
+            head = production[0]
+            tail = production[1:]
+            if head == non_terminal:
+                contem.add(tail+new_state)
             else:
-                nao_contem.add(production)
+                nao_contem.add(production+new_state)
 
         if len(contem) != 0:
-            new_non_terminal = non_terminal + '\''
-            self.non_terminals |= {new_non_terminal}
-            for production in contem:
-                production = production.replace(non_terminal, '')
-                contem_.add(production + new_non_terminal)
-            contem_.add('&')
-            self.productions[new_non_terminal] = contem_
+            contem.add('&')
+            self.non_terminals |= {new_state}
+            self.productions[new_state] = contem
 
             if len(nao_contem) != 0:
-                for production in nao_contem:
-                    nao_contem_.add(production + new_non_terminal)
-                self.productions[non_terminal] = nao_contem_
+                self.productions[non_terminal] = nao_contem
             else:
-                nao_contem_.add(new_non_terminal)
-                self.productions[non_terminal] = nao_contem_
+                nao_contem.add(new_state)
+                self.productions[non_terminal] = nao_contem
 
     def eliminate_indirect_recursion(self):
         non_terminals = list(self.non_terminals)
         i = 0
         stop_condition = True
-
         new_productions = set()
         prod_to_remove = str()
 
         while stop_condition:
             for j in range(i):
-                for production in self.productions[non_terminals[i]]:
-                    if production[0] == non_terminals[j]:
-                        new_productions = set()
-                        new_production = production.replace(production[0], str())
-                        # nao pode ser o prod[0] pq pode ter simbolo repetido ex: SSa
-                        for prod_ind in self.productions[non_terminals[j]]:
+                for production in list(self.productions[non_terminals[i]]):
+                    head = production[0]
+                    tail = production[1:]
+                    if head == non_terminals[j]:
+                        new_productions.clear()
+                        new_production = tail
+                        for prod_ind in list(self.productions[non_terminals[j]]):
                             new_productions.add(prod_ind + new_production)
-
                         prod_to_remove = production
-
-                for new_prod in new_productions:
+                for new_prod in list(new_productions):
                     self.productions[non_terminals[i]].add(new_prod)
-                print(prod_to_remove)
                 if prod_to_remove and prod_to_remove in self.productions[non_terminals[i]]:
                     self.productions[non_terminals[i]].remove(prod_to_remove)
-                print(self.productions[non_terminals[i]])
 
             self.eliminate_direct_recursion(non_terminals[i])
             i = i + 1
             if i >= len(non_terminals):
                 stop_condition = False
+
+    def number_derivation(self):
+        productions_non_terminals = set()
+        for prod in self.productions:
+            productions_non_terminals.add(prod[0])
+        productions_non_terminals = list(dict.fromkeys(productions_non_terminals))
+        return len(productions_non_terminals)
+
+    def factor(self):
+        self.left_recursion()
+        iterations = 0
+        while iterations < ContextFreeGrammar.MAX_FACTOR:
+            # length = self.number_derivation()
+            # for _ in range(1):
+            self.eliminate_direct_non_determinism()
+            self.eliminate_indirect_non_determinism()
+            iterations += 1
+
+    def eliminate_direct_non_determinism(self):
+        variables = list(self.non_terminals)
+        for variable in variables:
+            derivations = list(self.productions[variable])
+            derivation_to_change = {}
+            for derivation in derivations:
+                # print(variable)
+                # print(derivations)
+                head = derivation[0]
+                tail = derivation[1:]
+                if head not in derivation_to_change:
+                    derivation_to_change[head] = []
+                derivation_to_change[head].append(tail)
+            # print(derivation_to_change)
+            for head, tails in derivation_to_change.items():
+                already_added = False
+                if len(tails) == 1:
+                    continue
+
+                productions_new_state = set()
+                new_state = self.get_new_state()
+                self.productions[new_state] = {}
+                for tail in tails:
+                    if not already_added:
+                        self.productions[variable].add(head + new_state)
+                        already_added = True
+                    self.non_terminals |= {new_state}
+                    self.productions[variable].remove(head + tail)
+                    if tail == '':
+                        productions_new_state.add('&')
+                    else:
+                        productions_new_state.add(tail)
+                self.productions[new_state] = productions_new_state
+
+        # for variable in self.non_terminals:
+        #     print(variable)
+        #     print(self.productions[variable])
+
+    def eliminate_indirect_non_determinism(self):
+        variables = list(self.non_terminals)
+        # print(variables)
+        for variable in variables:
+            productions = copy.deepcopy(self.productions[variable])
+            # print(productions)
+            for production in productions:
+                # print('VARIABLE: '+ variable)
+                # print(production)
+                head = production[0]
+                tail = production[1:]
+                # print(head, tail)
+                if head in self.non_terminals:
+                    sub_productions = list(self.productions[head])
+                    self.productions[variable].remove(production)
+                    for sub_production in sub_productions:
+                        self.productions[variable].add(sub_production+tail)

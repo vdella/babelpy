@@ -1,0 +1,32 @@
+#start
+E
+#non-terminals
+E
+E'
+T
+T'
+F
+#terminals
+!
+i
+v
+^
+&
+#productions
+E -> TE'
+E' -> vTE' | &
+T -> FT'
+T' -> ^FT' | &
+F -> !F | i
+#firsts
+E {!, i}
+E' {v, &}
+T {!, i}
+T' {^,&}
+F {!, i}
+#follows
+E {$}
+E' {$}
+T {v,$}
+T' {v, $}
+F {^, v, $}

@@ -8,9 +8,7 @@ B
 a
 b
 c
-d
-e
 #productions
-S -> Aa | b
-A -> Bc | Sd | c
-B -> Sc | e
+S -> a | A | S
+A -> Bb | bc
+B -> ac
