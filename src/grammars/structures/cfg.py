@@ -16,10 +16,10 @@ class ContextFreeGrammar:
         self.start = start
 
     def __str__(self):
-        string = str()
+        gatherer = str()
         for src, dst in self.productions.items():
-            string += '{} -> {}\n'.format(src, ' | '.join(dst))
-        return string
+            gatherer += '{} -> {}\n'.format(src, ' | '.join(dst))
+        return gatherer
 
     def first(self):
         first = {symbol: set() for symbol in self.symbols}
@@ -73,14 +73,14 @@ class ContextFreeGrammar:
             for production in productions:
                 if production == '&':
                     nullable[symbol] = True
+                else:
+                    for letter in production:
+                        if letter in self.non_terminals and not visited[letter]:
+                            visited[letter] = True
+                            check(letter)
 
-                for letter in production:
-                    if letter in self.non_terminals and not visited[letter]:
-                        visited[letter] = True
-                        check(letter)
-
-                if all([nullable.get(letter) for letter in production]):
-                    nullable[symbol] = True
+                    if all([nullable.get(letter) for letter in production]):
+                        nullable[symbol] = True
 
         check(self.start)
         return nullable
