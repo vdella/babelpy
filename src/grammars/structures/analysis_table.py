@@ -39,7 +39,7 @@ class AnalysisTableContrcutor:
         follows = self.set_to_list(2)
         productions = self.set_to_list(3)
 
-        print(first)
+        print(follows)
 
         non_terminals = list(self.non_terminals)
         terminals = (list(self.terminals) + ['$'])

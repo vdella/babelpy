@@ -1,4 +1,5 @@
 from prettytable import PrettyTable
+from src.automata.persistency.reader import read_fa_from
 
 class Env:
 
@@ -18,37 +19,32 @@ class Env:
            tl.add_row([s])
            self.tl.append(s)
 
+if __name__ == '__main__':
+    rw_file = open('reserved_words.txt', 'r')
+    rw_read = rw_file.readlines()
+    reservedTerms = []
+    for line in rw_read:
+        reservedTerms.append(line[:-1])
 
-rw_file = open('reserved_words.txt', 'r')
-rw_read = rw_file.readlines()
-reservedTerms = []
-for line in rw_read:
-    reservedTerms.append(line[:-1])
+    entry_file = open('entry.txt', 'r')
 
-entry_file = open('entry.txt', 'r')
+    entry_read = entry_file.readlines()
+    entry = []
+    for word in entry_read:
+        entry.append(word[:-1])
 
-entry_read = entry_file.readlines()
-entry = []
-for word in entry_read:
-    entry.append(word[:-1])
+    tables = Env()
 
-tables = Env()
+    st = PrettyTable()
+    st.field_names = ["index", "id"]
+    tl = PrettyTable()
+    tl.field_names = ["Token List"]
 
-st = PrettyTable()
-st.field_names = ["index", "id"]
-tl = PrettyTable()
-tl.field_names = ["Token List"]
-
-for word in entry:
-    if (word not in reservedTerms):
-        index = tables.putST(word)
-        tables.putTL(["id", index])
-    else:
-        tables.putTL(word)
-
-print(st)
-print(tl)
-
-
-
-
+    for word in entry:
+        if (word not in reservedTerms):
+            index = tables.putST(word)
+            tables.putTL(["id", index])
+        else:
+            tables.putTL(word)
+    print(st)
+    print(tl)
