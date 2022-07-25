@@ -1,6 +1,6 @@
 from src import resource_dir
 from src.grammars.structures.cfg import ContextFreeGrammar
-from src.grammars.pattern_matching import find_terminal
+#from src.grammars.pattern_matching import find_terminal
 
 
 def read_grammar_from(filepath) -> ContextFreeGrammar:
@@ -19,6 +19,8 @@ def read_grammar_from(filepath) -> ContextFreeGrammar:
         non_terminal = line_without_arrow[0]  # Expected to always be non-terminal.
         digested_line = ''.join(line_without_arrow[1:]).split('|')
         productions[non_terminal] = set(digested_line)
+
+
 
     return ContextFreeGrammar(non_terminals, terminals, productions, start)
 

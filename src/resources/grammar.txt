@@ -1,0 +1,20 @@
+#start
+E
+#non-terminals
+E
+X
+T
+Y
+F
+#terminals
+!
+i
+v
+^
+&
+#productions
+E -> TX
+X -> vTX | &
+T -> FY
+Y -> ^FY | &
+F -> !F | i

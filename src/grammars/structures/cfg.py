@@ -1,7 +1,7 @@
 import copy
 import string
 
-from ordered_set import OrderedSet
+#from ordered_set import OrderedSet
 
 
 class ContextFreeGrammar:
@@ -132,7 +132,7 @@ class ContextFreeGrammar:
         return follow
 
     def __reversed_nullable_productions(self):
-        reversed_productions = {non_terminal: OrderedSet() for non_terminal in self.non_terminals}
+        reversed_productions = {non_terminal: set() for non_terminal in self.non_terminals}
 
         for non_terminal in self.non_terminals:
             for production in self.productions[non_terminal]:
