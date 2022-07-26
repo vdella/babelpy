@@ -24,6 +24,8 @@ if __name__ == '__main__':
     grammar = read_grammar_from('simple_grammar_recursion.txt')
     print(grammar)
 
-    grammar.left_recursion()
+    reduced = grammar.left_recursion()
+    print(reduced.non_terminals)
+    print(reduced)
 
-    write(grammar)
+

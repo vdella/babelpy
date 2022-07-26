@@ -1,6 +1,5 @@
 from src import resource_dir
 from src.grammars.structures.cfg import ContextFreeGrammar
-#from src.grammars.pattern_matching import find_terminal
 
 
 def read_grammar_from(filepath) -> ContextFreeGrammar:
@@ -56,12 +55,15 @@ def __show_follow_from(cfg):
 
 
 if __name__ == '__main__':
-    grammar1 = read_grammar_from('reduced_grammar1.txt')
-    # print(__organize_patterns(grammar1.symbols, grammar1.productions))
+    grammar = read_grammar_from('simple_grammar_recursion.txt')
+    print(grammar)
 
-    __show_first_from(grammar1)
-    # __show_follow_from(grammar1)
-    #
-    # grammar2 = read_grammar_from('reduced_grammar2.txt')
-    # __show_first_from(grammar2)
-    # __show_follow_from(grammar2)
+    reduced = grammar.left_recursion()
+    print(reduced.non_terminals)
+    print(reduced)
+
+    reduced.factor()
+    print(reduced)
+    print(reduced.non_terminals)
+
+    __show_first_from(reduced)

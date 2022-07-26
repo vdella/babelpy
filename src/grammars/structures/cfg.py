@@ -1,8 +1,6 @@
 import copy
 import string
 
-#from ordered_set import OrderedSet
-
 
 class ContextFreeGrammar:
     MAX_FACTOR = 10
@@ -139,9 +137,7 @@ class ContextFreeGrammar:
         return min(disp)
 
     def left_recursion(self):
-        self.get_new_state()
-        # self.eliminate_direct_recursion(self.start)
-        self.eliminate_indirect_recursion()
+        return self.eliminate_indirect_recursion()
 
     def eliminate_direct_recursion(self, non_terminal):
         contem = set()
@@ -193,6 +189,8 @@ class ContextFreeGrammar:
             i = i + 1
             if i >= len(non_terminals):
                 stop_condition = False
+
+        return ContextFreeGrammar(self.non_terminals, self.terminals, self.productions, self.start)
 
     def number_derivation(self):
         productions_non_terminals = set()
