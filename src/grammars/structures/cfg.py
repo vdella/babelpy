@@ -148,11 +148,11 @@ class ContextFreeGrammar:
             tail = production[1:]
             if head == non_terminal:
                 if len(tail) != 0:
-                    contem.append(tail + new_state)
+                    contem.append(tail+new_state)
                 else:
                     continue
             else:
-                nao_contem.append(production + new_state)
+                nao_contem.append(production+new_state)
 
         if len(contem) != 0:
             contem.append('&')
@@ -206,7 +206,7 @@ class ContextFreeGrammar:
     def factor(self):
         # self.left_recursion()
         iterations = 0
-        while iterations < ContextFreeGrammar.__MAX_FACTOR:
+        while iterations < ContextFreeGrammar.MAX_FACTOR:
         # length = self.number_derivation()
         # for _ in range(1):
             self.eliminate_direct_non_determinism()
