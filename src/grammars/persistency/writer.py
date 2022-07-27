@@ -22,10 +22,7 @@ def write(cfg: ContextFreeGrammar, filename='generated_grammar.txt'):
 
 if __name__ == '__main__':
     grammar = read_grammar_from('simple_grammar_recursion.txt')
-    print(grammar)
-
     reduced = grammar.left_recursion()
-    print(reduced.non_terminals)
-    print(reduced)
-
-
+    # print(reduced)
+    reduced.factor()
+    write(reduced)

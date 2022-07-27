@@ -1,5 +1,6 @@
 from src import resource_dir
 from src.grammars.structures.cfg import ContextFreeGrammar
+# from src.grammars.pattern_matching import find_terminal
 
 
 def read_grammar_from(filepath) -> ContextFreeGrammar:
