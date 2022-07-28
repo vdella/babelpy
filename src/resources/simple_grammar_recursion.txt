@@ -1,14 +1,15 @@
 #start
-S
+E
 #non-terminals
-S
-A
-B
+E
+T
+F
 #terminals
-a
-b
-c
+v
+^
+~
+i
 #productions
-S -> a | A | S
-A -> Bb | bc
-B -> ac
+E -> EvT | E
+T -> T^F | F
+F -> ~F | i
