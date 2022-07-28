@@ -18,7 +18,13 @@ class ContextFreeGrammar:
     def __str__(self):
         gatherer = str()
         for src, dst in self.productions.items():
-            gatherer += '{} -> {}\n'.format(src, ' | '.join(dst))
+            gatherer += '{} -> '.format(src)
+            for i in dst:
+                if i == dst[-1]:
+                    gatherer += '{}'.format(' '.join(i))
+                else:
+                    gatherer += '{} | '.format(' '.join(i))
+            gatherer += '\n'
         return gatherer
 
     def first(self):
@@ -203,11 +209,11 @@ class ContextFreeGrammar:
             tail = production[1:]
             if head == non_terminal:
                 if len(tail) != 0:
-                    contem.append(tail+new_state)
+                    contem.append(str().join(tail)+new_state)
                 else:
                     continue
             else:
-                nao_contem.append(production+new_state)
+                nao_contem.append(str().join(production)+new_state)
 
         if len(contem) != 0:
             contem.append('&')
@@ -222,7 +228,6 @@ class ContextFreeGrammar:
 
     def eliminate_indirect_recursion(self):
         non_terminals = list(self.non_terminals)
-        print(non_terminals)
         i = 0
         stop_condition = True
         new_productions = list()
@@ -298,7 +303,13 @@ class ContextFreeGrammar:
                             self.productions[variable].append(head + new_state)
                             already_added = True
                         self.productions[variable].remove(head + tail)
-                    self.productions[new_state] = productions_new_state
+
+                    resultant_list = []
+                    for element in productions_new_state:
+                        if element not in resultant_list:
+                            resultant_list.append(element)
+
+                    self.productions[new_state] = resultant_list
 
     def eliminate_indirect_non_determinism(self):
         variables = list(self.non_terminals)
@@ -314,5 +325,8 @@ class ContextFreeGrammar:
                         if not already_removed:
                             self.productions[variable].remove(production)
                             already_removed = True
-                        self.productions[variable].append(sub_production + tail)
+                        if isinstance(sub_production, list):
+                            self.productions[variable].append(str().join(sub_production) + tail)
+                        else:
+                            self.productions[variable].append(sub_production + tail)
 
