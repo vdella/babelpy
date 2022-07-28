@@ -6,6 +6,7 @@ X
 T
 Y
 F
+H
 #terminals
 !
 i
@@ -18,3 +19,4 @@ X -> v T X | &
 T -> F Y
 Y -> ^ F Y | &
 F -> ! F | i
+H -> ! F | X

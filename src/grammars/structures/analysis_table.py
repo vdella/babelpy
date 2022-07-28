@@ -36,7 +36,24 @@ class AnalysisTableContrcutor:
     def generate_table(self):
 
         first = self.set_to_list(1)
-        follows = self.set_to_list(2)
+
+        print(first)
+        follows = dict()
+        followE = ['$']
+        followX = ['$']
+        followT = ['v', '$']
+        followY = ['v', '$']
+        followF = ['^', 'v', '$']
+
+        follows['E'] = followE
+        follows['Y'] = followY
+        follows['X'] = followX
+        follows['T'] = followT
+        follows['F'] = followF
+
+
+
+        # follows = self.set_to_list(2)
         productions = self.set_to_list(3)
 
         print(follows)
@@ -67,9 +84,10 @@ class AnalysisTableContrcutor:
         for non_terminal in self.non_terminals:
             firsts = first[non_terminal]
             for derivation in split_productions:
+                print((split_productions[derivation])[0])
                 if (split_productions[derivation])[0] in self.terminals:
                     if table[non_terminal][(split_productions[derivation])[0]] == '' and aux_dict[derivation] == non_terminal:
-                        if split_productions[derivation] == '&':
+                        if split_productions[derivation][0] == '&':
                             for follow in follows[non_terminal]:
                                 table[non_terminal][follow] = derivation
                             table[non_terminal][('$')[0]] = derivation
@@ -96,8 +114,11 @@ class AnalysisTableContrcutor:
             history = {"stack": stack, "entry": entry}
             stacktrace.append(copy.deepcopy(history))
             symbol = stack.pop()
+            #print(stack)
+
 
             if symbol in variables:
+
                 if symbol in self.table and entry[0] in self.table[symbol]:
                     derivation = self.table[symbol][entry[0]]
                     if derivation == '':
@@ -115,6 +136,8 @@ class AnalysisTableContrcutor:
                     if derivation[0] == "&":
                         continue
                     stack += derivation
+                    #print(stack)
+
                 else:
                     accepted = False
                     break

@@ -57,6 +57,10 @@ def __show_first_from(cfg):
 
 
 if __name__ == '__main__':
-    grammar1 = read_grammar_from('reduced_grammar1.txt')
-    print(grammar1.productions)
-    __show_first_from(grammar1)
+    grammar1 = read_grammar_from('simple_grammar_recursion.txt')
+    grammar2 = grammar1.left_recursion()
+    print(grammar2)
+    grammar2.factor()
+    print(grammar2)
+    # print(grammar1.productions)
+    # __show_first_from(grammar1)
