@@ -6,4 +6,4 @@ S
 a
 b
 #productions
-S -> aSa | bSb | aa | bb
+S -> a S a | b S b | a a | b b

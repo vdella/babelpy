@@ -13,8 +13,8 @@ F
 id
 &
 #productions
-E -> TE'
-E' -> ∨TE' | &
-T -> FT'
-T' -> ∧FT' | &
-F -> ¬F | id
+E -> T E'
+E' -> ∨ T E' | &
+T -> F T'
+T' -> ∧ F T' | &
+F -> ¬ F | id

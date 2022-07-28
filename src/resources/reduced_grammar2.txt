@@ -12,7 +12,7 @@ c
 d
 &
 #productions
-S -> ABC
-A -> aA | &
-B -> bB | ACd
-C -> cC | &
+S -> A B C
+A -> a A | &
+B -> b B | A C d
+C -> c C | &
