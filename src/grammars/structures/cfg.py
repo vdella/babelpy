@@ -125,50 +125,54 @@ class ContextFreeGrammar:
         nullable = self.nullable()
 
         def search_for(symbol):
+            ocurrences = self.find(symbol)
 
-            for head, body in self.productions.items():
-                for piece in body:
-
-                    if symbol in piece:  # Searches all ocurrences of a single symbol in all available productions.
-                        if piece[-1] == symbol:
-                            pass  # Last production symbol.
-                        else:
-                            pass
-
-                        for single in piece:
-                            piece = piece[::-1]
-
-                            while piece:
-                                tail = piece[0]
+            for head, body in ocurrences.items():
+                for line in body:
+                    end = -1
+                    if line[end] == symbol:  # Last production symbol.
+                        while nullable[line[end]]:
+                            if not follow[head] and head != symbol:
+                                search_for(head)
+                            follow[line[end]] |= follow[head]
+                            end -= 1
+                        follow[symbol] |= follow[head]
                     else:
-                        return
+                        where = line.index(symbol) + 1
+                        here = line[where]
+                        follow[symbol] |= first[here] - {'&'}
 
-            # body = self.productions[symbol]
-            #
-            # for piece in body:
-            #     piece = piece[::-1]
-            #
-            #     while piece:
-            #         tail = piece[0]
-            #
-            #         if symbol != tail:
-            #             if not follow[tail]:
-            #                 search_for(tail)
-            #
-            #             if nullable[tail]:
-            #                 follow[symbol] |= follow[tail]
-            #
-            #             before = piece[1] if len(piece) > 1 else tail
-            #             follow[before] |= first[tail]
-            #
-            #             piece = piece[1:]
-            #         else:
-            #             return
+                        while nullable[here]:
+                            where += 1
+
+                            if where == len(line):
+                                break
+
+                            here = line[where]
+                            follow[symbol] |= first[here] - {'&'}
 
         for non_terminal in self.non_terminals:
             search_for(non_terminal)
 
         return follow
+
+    def find(self, symbol):
+        """Finds all ocurrences of a :param symbol. :returns a dictionary containing the production rule lines
+        where it appears."""
+
+        finder = {non_terminal: list() for non_terminal in self.non_terminals}
+
+        for non_terminal, productions in self.productions.items():
+            for piece in productions:
+                for char in piece:
+                    if char == symbol:
+                        finder[non_terminal].append(piece)
+
+        for entry in finder.copy().keys():
+            if not finder[entry]:
+                del finder[entry]
+
+        return finder
 
     @show
     def show_follow(self) -> str:
@@ -313,20 +317,21 @@ class ContextFreeGrammar:
 
     def eliminate_indirect_non_determinism(self):
         variables = list(self.non_terminals)
-        for variable in variables:
-            productions = list(copy.deepcopy(self.productions[variable]))
+        for var in variables:
+            productions = self.productions[var].copy()
+
             for production in productions:
-                head = production[0]
-                tail = production[1:]
+                head, tail = production[0], production[1:]
+
                 already_removed = False
-                if head in self.non_terminals and head != variable:
+
+                if head in self.non_terminals and head != var:
+
                     sub_productions = list(self.productions[head])
                     for sub_production in sub_productions:
                         if not already_removed:
-                            self.productions[variable].remove(production)
+                            self.productions[var].remove(production)
                             already_removed = True
                         if isinstance(sub_production, list):
-                            self.productions[variable].append(str().join(sub_production) + tail)
-                        else:
-                            self.productions[variable].append(sub_production + tail)
+                            self.productions[var].append(sub_production + tail)
 
