@@ -3,8 +3,8 @@ import string
 
 
 class ContextFreeGrammar:
-    MAX_FACTOR = 2
-    VARIABLES = set(string.ascii_uppercase)
+    __MAX_FACTOR = 2
+    __VARIABLES = set(string.ascii_uppercase)
 
     def __init__(self, non_terminals, terminals, productions: dict, start='S'):
         self.non_terminals = non_terminals
@@ -41,7 +41,7 @@ class ContextFreeGrammar:
                             build_for(letter)  # Executes a depth-first search from the given letter.
                         first[symbol] |= first[letter]
 
-                        if not nullable[symbol]:    # & will be added by default if found in other firsts,
+                        if not nullable[symbol]:  # & will be added by default if found in other firsts,
                             first[symbol] -= {'&'}  # but it must not be added if the symbol is not itself nullable.
                             break
 
@@ -133,7 +133,7 @@ class ContextFreeGrammar:
         return reversed_productions
 
     def get_new_state(self):
-        disp = self.VARIABLES - self.non_terminals
+        disp = self.__VARIABLES - self.non_terminals
         return min(disp)
 
     def left_recursion(self):
@@ -148,11 +148,11 @@ class ContextFreeGrammar:
             tail = production[1:]
             if head == non_terminal:
                 if len(tail) != 0:
-                    contem.append(tail+new_state)
+                    contem.append(tail + new_state)
                 else:
                     continue
             else:
-                nao_contem.append(production+new_state)
+                nao_contem.append(production + new_state)
 
         if len(contem) != 0:
             contem.append('&')
@@ -206,7 +206,7 @@ class ContextFreeGrammar:
     def factor(self):
         # self.left_recursion()
         iterations = 0
-        while iterations < ContextFreeGrammar.MAX_FACTOR:
+        while iterations < ContextFreeGrammar.__MAX_FACTOR:
         # length = self.number_derivation()
         # for _ in range(1):
             self.eliminate_direct_non_determinism()
@@ -260,4 +260,3 @@ class ContextFreeGrammar:
                             self.productions[variable].remove(production)
                             already_removed = True
                         self.productions[variable].append(sub_production + tail)
-
