@@ -1,6 +1,6 @@
 import copy
 import string
-from prettytable import PrettyTable
+# from prettytable import PrettyTable
 from src.grammars.decorators import show
 
 
@@ -8,11 +8,11 @@ class ContextFreeGrammar:
     __MAX_FACTOR = 10
     __VARIABLES = set(string.ascii_uppercase)
 
-    def __init__(self, non_terminals, terminals, productions: dict[list], start='S'):
+    def __init__(self, non_terminals, terminals, productions: dict, start):
         self.non_terminals = non_terminals
         self.terminals = terminals
         self.symbols: set = self.terminals | self.non_terminals
-        self.productions: dict[list] = productions
+        self.productions: dict = productions
         self.start = start
 
     def __str__(self):
