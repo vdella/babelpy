@@ -1,16 +1,18 @@
 import copy
 import string
+from prettytable import PrettyTable
+from src.grammars.decorators import show
 
 
 class ContextFreeGrammar:
-    MAX_FACTOR = 2
-    VARIABLES = set(string.ascii_uppercase)
+    __MAX_FACTOR = 10
+    __VARIABLES = set(string.ascii_uppercase)
 
-    def __init__(self, non_terminals, terminals, productions: dict, start='S'):
+    def __init__(self, non_terminals, terminals, productions: dict[list], start='S'):
         self.non_terminals = non_terminals
         self.terminals = terminals
         self.symbols: set = self.terminals | self.non_terminals
-        self.productions = productions
+        self.productions: dict[list] = productions
         self.start = start
 
     def __str__(self):
@@ -34,28 +36,46 @@ class ContextFreeGrammar:
         nullable = self.nullable()
 
         def build_for(symbol):
-            productions = self.productions[symbol]
+            body = self.productions[symbol]
 
-            for piece in productions:
+            for piece in body:
                 head = piece[0]
 
                 if head in self.terminals or head == '&':  # Whether starts with a terminal or with &.
                     first[symbol] |= {head}
                 else:  # Starts with a non-terminal.
-                    for letter in piece:
-                        if letter in self.non_terminals and not first[letter]:
-                            build_for(letter)  # Executes a depth-first search from the given letter.
-                        first[symbol] |= first[letter]
+                    while piece:
+                        head = piece[0]
+
+                        if not first[head]:
+                            build_for(head)  # Executes a depth-first search from the given letter.
+                        first[symbol] |= first[head]
 
                         if not nullable[symbol]:    # & will be added by default if found in other firsts,
                             first[symbol] -= {'&'}  # but it must not be added if the symbol is not itself nullable.
+
+                        if not nullable[head]:
                             break
 
-        # for non_terminal in self.non_terminals:
+                        piece = piece[1:]
+
         for non_terminal in self.non_terminals:
             build_for(non_terminal)
 
         return first
+
+    @show
+    def show_first(self) -> str:
+        table = PrettyTable()
+        table.field_names = ['Non-terminals', 'First']
+
+        first = self.first()
+
+        for symbol, value in first.items():
+            if symbol in self.non_terminals:
+                table.add_row([symbol, value])
+
+        return str(table)
 
     def nullable(self):
         """:returns: a (symbol, bool) dictionary built from the grammar.
@@ -65,68 +85,103 @@ class ContextFreeGrammar:
         visited = {non_terminal: False for non_terminal in self.non_terminals}
 
         def check(symbol):
-            productions = self.productions[symbol]
+            body = self.productions[symbol]
 
-            for production in productions:
-                if production == '&':
-                    nullable[symbol] = True
-                else:
-                    for letter in production:
-                        if letter in self.non_terminals and not visited[letter]:
-                            visited[letter] = True
-                            check(letter)
-
-                    if all([nullable.get(letter) for letter in production]):
+            for production in body:
+                for head in production:
+                    if head == '&':
                         nullable[symbol] = True
+                    else:
+                        for letter in production:
+                            if letter in self.non_terminals and not visited[letter]:
+                                visited[letter] = True
+                                check(letter)
+
+                        if all([nullable.get(letter) for letter in production]):
+                            nullable[symbol] = True
 
         check(self.start)
         return nullable
 
+    @show
+    def show_nullable(self) -> str:
+        table = PrettyTable()
+        table.field_names = ['Nullables']
+
+        nullables = self.nullable()
+
+        for non_terminal, value in nullables.items():
+            if value:
+                table.add_row([non_terminal])
+
+        return str(table)
+
     def follow(self):
-        follow = {non_terminal: set() for non_terminal in self.non_terminals}
+        follow = {symbol: set() for symbol in self.symbols}
+        follow |= {terminal: {'/'} for terminal in self.terminals}
+        follow[self.start] = {'$'}
+
         first = self.first()
-
-        for symbol in self.non_terminals:  # Gathers results from start until end.
-            if symbol == self.start:
-                follow[symbol] = {'$'}  # The start's follow() is fixed in $ by default.
-
-            productions = self.productions[symbol]
-
-            for production in productions:
-                for letter in production:
-                    if letter in self.non_terminals:
-                        if letter == production[-1]:
-                            follow[letter] |= follow[symbol]
-                        else:
-                            next_pos = production.index(letter) + 1
-                            next_letters = production[next_pos:]
-
-                            for next_letter in next_letters:
-                                follow[letter] |= first[next_letter] - {'&'}
-
-                                # As there are nullable non-terminals, they are passible of
-                                # not happening. In such cases, the actual letter will
-                                # receive its next letters follow()s until it find a non-nullable non-terminal.
-                                if '&' not in first[next_letter]:
-                                    break
-
-        # As we checked every body in normal order, a last checking is needed
-        # in order to identify which nullable productions will need its head's set of follow productions.
         nullable = self.nullable()
-        for head, body in self.__reversed_nullable_productions().items():
-            for piece in body:
-                for letter in piece:
-                    if letter in self.non_terminals:
-                        next_pos = piece.index(letter) + 1
-                        next_letter = piece[next_pos: next_pos + 1]
 
-                        if next_letter not in self.terminals and next_letter != piece[-1]:
-                            if nullable[letter] and next_letter:
-                                if follow.get(next_letter):
-                                    # If the actual letter is nullable, its next letter will receive its follow() set.
-                                    follow[next_letter] |= follow[head]
+        def search_for(symbol):
+
+            for head, body in self.productions.items():
+                for piece in body:
+
+                    if symbol in piece:  # Searches all ocurrences of a single symbol in all available productions.
+                        if piece[-1] == symbol:
+                            pass  # Last production symbol.
+                        else:
+                            pass
+
+                        for single in piece:
+                            piece = piece[::-1]
+
+                            while piece:
+                                tail = piece[0]
+                    else:
+                        return
+
+            # body = self.productions[symbol]
+            #
+            # for piece in body:
+            #     piece = piece[::-1]
+            #
+            #     while piece:
+            #         tail = piece[0]
+            #
+            #         if symbol != tail:
+            #             if not follow[tail]:
+            #                 search_for(tail)
+            #
+            #             if nullable[tail]:
+            #                 follow[symbol] |= follow[tail]
+            #
+            #             before = piece[1] if len(piece) > 1 else tail
+            #             follow[before] |= first[tail]
+            #
+            #             piece = piece[1:]
+            #         else:
+            #             return
+
+        for non_terminal in self.non_terminals:
+            search_for(non_terminal)
 
         return follow
+
+    @show
+    def show_follow(self) -> str:
+        table = PrettyTable()
+        table.field_names = ['Non-terminals', 'Follow']
+
+        first = self.follow()
+
+        for symbol, value in first.items():
+            if symbol in self.non_terminals:
+                table.add_row([symbol, value])
+
+        return str(table)
 
     def __reversed_nullable_productions(self):
         reversed_productions = {non_terminal: set() for non_terminal in self.non_terminals}
@@ -139,7 +194,7 @@ class ContextFreeGrammar:
         return reversed_productions
 
     def get_new_state(self):
-        disp = self.VARIABLES - self.non_terminals
+        disp = self.__VARIABLES - self.non_terminals
         return min(disp)
 
     def left_recursion(self):
@@ -216,9 +271,9 @@ class ContextFreeGrammar:
     def factor(self):
         # self.left_recursion()
         iterations = 0
-        while iterations < ContextFreeGrammar.MAX_FACTOR:
-        # length = self.number_derivation()
-        # for _ in range(1):
+        while iterations < ContextFreeGrammar.__MAX_FACTOR:
+            # length = self.number_derivation()
+            # for _ in range(1):
             self.eliminate_direct_non_determinism()
             # self.eliminate_indirect_non_determinism()
             iterations += 1

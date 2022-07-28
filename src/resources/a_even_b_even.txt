@@ -10,7 +10,7 @@ a
 b
 c
 #productions
-S -> aA | bB | cS
-A -> aS | bC | cA | b
-B -> aC | bS | cB | a
-C -> cC | aB | bA | c
+S -> a A | b B | c S
+A -> a S | b C | c A | b
+B -> a C | b S | c B | a
+C -> c C | a B | b A | c
