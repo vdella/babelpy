@@ -1,6 +1,7 @@
 from src.grammars.structures.cfg import ContextFreeGrammar
 from src import resource_dir
 from src.grammars.persistency.reader import read_grammar_from
+from src.grammars.structures.analysis_table import AnalysisTableContrcutor
 
 
 def write(cfg: ContextFreeGrammar, filename='generated_grammar.txt'):
@@ -21,8 +22,9 @@ def write(cfg: ContextFreeGrammar, filename='generated_grammar.txt'):
 
 
 if __name__ == '__main__':
-    grammar = read_grammar_from('simple_grammar_recursion.txt')
+    grammar = read_grammar_from('grammar.txt')
+    # grammar = read_grammar_from('simple_grammar_recursion.txt')
     reduced = grammar.left_recursion()
-    # print(reduced)
     reduced.factor()
     write(reduced)
+    # print(reduced)

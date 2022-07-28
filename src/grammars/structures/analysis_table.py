@@ -1,7 +1,7 @@
 import copy
 
 from src.automata.structures.state import State
-from prettytable import PrettyTable
+# from prettytable import PrettyTable
 #from src.grammars.persistency.reader import read_grammar_from
 from src.grammars.persistency.reader import read_grammar_from
 from src.grammars.structures.cfg import ContextFreeGrammar

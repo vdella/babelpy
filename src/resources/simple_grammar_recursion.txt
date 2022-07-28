@@ -10,6 +10,6 @@ v
 ~
 i
 #productions
-E -> EvT | E
-T -> T^F | F
-F -> ~F | i
+E -> E v T | E
+T -> T ^ F | F
+F -> ~ F | i

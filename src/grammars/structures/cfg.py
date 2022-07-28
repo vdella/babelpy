@@ -154,11 +154,15 @@ class ContextFreeGrammar:
             tail = production[1:]
             if head == non_terminal:
                 if len(tail) != 0:
-                    contem.append(str().join(tail)+new_state)
+                    j = str().join(tail)+new_state
+                    if not (j in contem):
+                        contem.append(j)
                 else:
                     continue
             else:
-                nao_contem.append(str().join(production)+new_state)
+                i = str().join(production)+new_state
+                if not (i in nao_contem):
+                    nao_contem.append(i)
 
         if len(contem) != 0:
             contem.append('&')
@@ -187,10 +191,11 @@ class ContextFreeGrammar:
                         new_productions.clear()
                         new_production = tail
                         for prod_ind in list(self.productions[non_terminals[j]]):
-                            new_productions.append(prod_ind + new_production)
+                            new_productions.append(list(prod_ind) + list(new_production))
                         prod_to_remove = production
                 for new_prod in list(new_productions):
-                    self.productions[non_terminals[i]].append(new_prod)
+                    if not (new_prod in self.productions[non_terminals[i]]):
+                        self.productions[non_terminals[i]].append(new_prod)
                 if prod_to_remove and prod_to_remove in self.productions[non_terminals[i]]:
                     self.productions[non_terminals[i]].remove(prod_to_remove)
 
@@ -215,7 +220,7 @@ class ContextFreeGrammar:
         # length = self.number_derivation()
         # for _ in range(1):
             self.eliminate_direct_non_determinism()
-            self.eliminate_indirect_non_determinism()
+            # self.eliminate_indirect_non_determinism()
             iterations += 1
 
     def eliminate_direct_non_determinism(self):
@@ -228,7 +233,7 @@ class ContextFreeGrammar:
                 tail = derivation[1:]
                 if head not in derivation_to_change:
                     derivation_to_change[head] = []
-                derivation_to_change[head].append(tail)
+                derivation_to_change[head].append(list(tail))
 
             for head, tails in derivation_to_change.items():
                 already_added = False
@@ -243,11 +248,16 @@ class ContextFreeGrammar:
                         if tail == '':
                             productions_new_state.append('&')
                         else:
-                            productions_new_state.append(tail)
+                            productions_new_state.append(list(tail))
                         if not already_added:
-                            self.productions[variable].append(head + new_state)
+                            self.productions[variable].append(list(head) + list(new_state))
                             already_added = True
-                        self.productions[variable].remove(head + tail)
+                        to_remove = list(tail)
+                        to_remove.insert(0, head)
+                        print(to_remove)
+                        print(variable)
+                        print(self.productions[variable])
+                        self.productions[variable].remove(to_remove)
 
                     resultant_list = []
                     for element in productions_new_state:
@@ -270,8 +280,8 @@ class ContextFreeGrammar:
                         if not already_removed:
                             self.productions[variable].remove(production)
                             already_removed = True
-                        if isinstance(sub_production, list):
-                            self.productions[variable].append(str().join(sub_production) + tail)
-                        else:
-                            self.productions[variable].append(sub_production + tail)
+                        # if isinstance(sub_production, list):
+                        self.productions[variable].append(list(sub_production) + list(tail))
+                        # else:
+                        #     self.productions[variable].append(sub_production + tail)
 

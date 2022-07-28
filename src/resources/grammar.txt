@@ -13,8 +13,8 @@ v
 ^
 &
 #productions
-E -> TX
-X -> vTX | &
-T -> FY
-Y -> ^FY | &
-F -> !F | i
+E -> T X
+X -> v T X | &
+T -> F Y
+Y -> ^ F Y | &
+F -> ! F | i
