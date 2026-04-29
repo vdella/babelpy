@@ -144,3 +144,6 @@ its FA equivalent. Using `fa_from(regex: str)`,
 one can retrieve its automata.
 
 ![Fa from (&|b)(ab)*(&|a)](images/fa_from_regex.png "Fa from (&|b)(ab)*(&|a)")
+## Extra example: Discord stock bot
+
+There is a ready-to-adapt scaffold in `examples/discord_stock_bot` for reading spreadsheet data and posting stock coverage days to Discord.
